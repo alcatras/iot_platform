@@ -28,6 +28,14 @@ project(':server') {
 
     mainClassName = 'com.klimalakamil.channel_broadcaster.server.Server'
 
+    jar {
+        manifest {
+            attributes 'Main-Class': mainClassName,
+                'Implementation-Version': version,
+                'Implementation-Name': project.name + '-server'
+        }
+    }
+
     dependencies {
 
     }
