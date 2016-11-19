@@ -19,6 +19,7 @@ public class ServerSettings extends XmlParser {
 
     private int backlogSize;
     private int maxConnections;
+    private String keyStore;
 
     @Override
     protected void parseDocument(Element root) throws ParseException {
@@ -45,6 +46,19 @@ public class ServerSettings extends XmlParser {
                 maxConnections = Integer.parseInt(value);
             }
         }
+
+        NodeList securitySettings = ((Element) root.getElementsByTagName("security").item(0)).getElementsByTagName("value");
+
+        for (int i = 0; i < securitySettings.getLength(); i++) {
+            Element element = (Element) securitySettings.item(i);
+
+            String name = element.getAttribute("name");
+            String value = element.getTextContent();
+
+            if(name.equals("key_store")) {
+                keyStore = value;
+            }
+        }
     }
 
     public InetAddress getInetAddress() {
@@ -61,5 +75,9 @@ public class ServerSettings extends XmlParser {
 
     public int getMaxConnections() {
         return maxConnections;
+    }
+
+    public String getKeyStore() {
+        return keyStore;
     }
 }

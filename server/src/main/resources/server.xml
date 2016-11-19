@@ -5,4 +5,8 @@
         <value name="backlog_size">10</value>
         <value name="max_connections">20</value>
     </connection>
+
+    <security>
+        <value name="key_store">key.jks</value>
+    </security>
 </server>

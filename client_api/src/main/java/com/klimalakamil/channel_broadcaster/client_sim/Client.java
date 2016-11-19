@@ -12,8 +12,8 @@ import java.net.InetAddress;
  */
 public class Client extends SSLClientThread {
 
-    public Client(int port, InetAddress inetAddress) {
-        super(port, inetAddress);
+    public Client(int port, InetAddress inetAddress, String keyStore, String password) {
+        super(port, inetAddress, keyStore, password);
     }
 
     @Override

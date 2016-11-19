@@ -64,6 +64,10 @@ project(':client_sim') {
                     'Implementation-Version': version,
                     'Implementation-Name': project.name + '-client_sim'
         }
+
+        from {
+            configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        }
     }
 
     dependencies {

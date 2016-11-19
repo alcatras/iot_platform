@@ -6,6 +6,7 @@ import com.klimalakamil.channel_broadcaster.core.util.Log;
 import com.klimalakamil.channel_broadcaster.server.parser.ServerSettings;
 import org.xml.sax.SAXException;
 
+import javax.net.ssl.SSLSocket;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,8 +22,8 @@ import java.util.TimeZone;
  */
 public class Server extends SSLServerThread {
 
-    protected Server(int port, InetAddress inetAddress, int backlog, int maxThreads) {
-        super(port, inetAddress, backlog, maxThreads);
+    protected Server(int port, InetAddress inetAddress, int backlog, int maxThreads, String keyStore, String password) {
+        super(port, inetAddress, backlog, maxThreads, keyStore, password);
     }
 
     public static void main(String[] args) throws InterruptedException, FileNotFoundException {
@@ -45,7 +46,8 @@ public class Server extends SSLServerThread {
             Log.Warning.l("Invalid server settings file: " + e.getMessage());
         }
 
-        Server server = new Server(settings.getPort(), settings.getInetAddress(), settings.getBacklogSize(), settings.getMaxConnections());
+        Server server = new Server(settings.getPort(), settings.getInetAddress(), settings.getBacklogSize(), settings.getMaxConnections(),
+                settings.getKeyStore(), "");
 
         (new Thread(server)).start();
     }
@@ -61,8 +63,8 @@ public class Server extends SSLServerThread {
     }
 
     @Override
-    protected Runnable acceptConnection(Socket clientSocket) {
-        return null;
+    protected Runnable acceptConnection(final SSLSocket clientSocket) {
+        return new ClientWorkerThread(clientSocket);
     }
 
     @Override
