@@ -24,6 +24,10 @@ project(':core') {
 }
 
 project(':server') {
+    apply plugin: 'application'
+
+    mainClassName = 'com.klimalakamil.channel_broadcaster.server.Server'
+
     dependencies {
 
     }
