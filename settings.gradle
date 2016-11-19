@@ -1,0 +1,3 @@
+rootProject.name = 'channel_broadcaster'
+include ':core', ':server'
+

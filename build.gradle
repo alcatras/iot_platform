@@ -1,0 +1,33 @@
+allprojects {
+    apply plugin: 'idea'
+    group = 'com.klimalakamil.channel_broadcaster'
+    version = '0.1alpha'
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+    }
+}
+
+project(':core') {
+    dependencies {
+
+    }
+}
+
+project(':server') {
+    dependencies {
+
+    }
+
+    sourceSets.main.java.srcDirs        project(':core').sourceSets.main.java
+    sourceSets.main.resources.srcDirs   project(':core').sourceSets.main.resources
+}
