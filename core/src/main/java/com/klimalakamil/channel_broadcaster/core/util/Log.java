@@ -33,7 +33,15 @@ public enum Log {
         this.level = level;
     }
 
-    void l(String msg) {
+    public static boolean addOutput(PrintStream printStream, int level) {
+        return logStreams.add(new LogStream(printStream, level));
+    }
+
+    public static void setTimeZone(TimeZone timeZone) {
+        dateFormat.setTimeZone(timeZone);
+    }
+
+    public void l(String msg) {
         StringBuilder sb = new StringBuilder();
 
         sb
@@ -55,14 +63,6 @@ public enum Log {
 
     public int getLevel() {
         return level;
-    }
-
-    public static boolean addOutput(PrintStream printStream, int level) {
-        return logStreams.add(new LogStream(printStream, level));
-    }
-
-    public static void setTimeZone(TimeZone timeZone) {
-        dateFormat.setTimeZone(timeZone);
     }
 
     private static class LogStream {

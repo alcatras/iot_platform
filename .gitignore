@@ -4,3 +4,4 @@ gradle
 gradlew.bat
 core/build/
 server/build/
+client_sim/build/

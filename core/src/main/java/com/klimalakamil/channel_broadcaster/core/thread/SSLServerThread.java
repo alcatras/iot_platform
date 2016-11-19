@@ -1,16 +1,15 @@
 package com.klimalakamil.channel_broadcaster.core.thread;
 
+import com.klimalakamil.channel_broadcaster.core.util.Log;
+
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by ekamkli on 2016-10-26.
@@ -44,14 +43,17 @@ public abstract class SSLServerThread implements Runnable {
         }
 
         setup();
+        Log.Verbose.l("Server is listening on " + inetAddress.toString() + ":" + port);
 
-        while(running) {
+        while (running) {
             SSLSocket sslClientSocket = null;
 
             try {
                 sslClientSocket = (SSLSocket) sslServerSocket.accept();
+                Log.Verbose.l("Accepted client connection from " + sslClientSocket.getRemoteSocketAddress());
             } catch (IOException e) {
                 acceptConnectionFailed(e);
+                Log.Warning.l("Failed to accept client connection:" + e.getMessage());
                 continue;
             }
 
@@ -61,7 +63,8 @@ public abstract class SSLServerThread implements Runnable {
         finish();
 
         try {
-            if(sslServerSocket != null)
+            Log.Verbose.l("Closing server socket");
+            if (sslServerSocket != null)
                 sslServerSocket.close();
         } catch (IOException ignored) {
         }
@@ -72,9 +75,11 @@ public abstract class SSLServerThread implements Runnable {
     }
 
     protected abstract void setup();
+
     protected abstract void setupFailed(Exception e);
 
     protected abstract Runnable acceptConnection(Socket clientSocket);
+
     protected abstract void acceptConnectionFailed(Exception e);
 
     protected abstract void finish();

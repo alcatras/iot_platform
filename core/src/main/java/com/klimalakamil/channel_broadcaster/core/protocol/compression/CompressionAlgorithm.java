@@ -6,9 +6,9 @@ package com.klimalakamil.channel_broadcaster.core.protocol.compression;
 public enum CompressionAlgorithm {
     ZIP(1, new ZipCompressor());
 
+    private final int id;
     private Compressor compressor;
     private boolean initialized = false;
-    private final int id;
 
     CompressionAlgorithm(int id, Compressor compressor) {
         this.id = id;
@@ -16,7 +16,7 @@ public enum CompressionAlgorithm {
     }
 
     private void init() {
-        if(!initialized) {
+        if (!initialized) {
             compressor.setup();
             initialized = true;
         }
