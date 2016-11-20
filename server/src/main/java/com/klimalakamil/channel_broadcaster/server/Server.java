@@ -23,6 +23,8 @@ public class Server extends SSLServerThread {
     }
 
     public static void main(String[] args) throws InterruptedException, FileNotFoundException {
+        //System.setProperty("javax.net.debug", "all");
+
         Log.addOutput(new PrintStream(System.out), Log.Verbose.getLevel());
         Log.setTimeZone(TimeZone.getTimeZone("UCT"));
 

@@ -91,14 +91,14 @@ public abstract class SSLServerThread implements Runnable {
 
         try {
             Log.Verbose.l("Closing server socket");
-            if (sslServerSocket != null)
-                sslServerSocket.close();
+            sslServerSocket.close();
         } catch (IOException ignored) {
         }
     }
 
-    protected void close() {
+    protected void stop() {
         running = false;
+        threadPool.shutdown();
     }
 
     protected abstract void setup();

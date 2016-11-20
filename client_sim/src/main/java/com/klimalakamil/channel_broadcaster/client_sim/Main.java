@@ -1,5 +1,6 @@
 package com.klimalakamil.channel_broadcaster.client_sim;
 
+import com.klimalakamil.channel_broadcaster.api.client.Client;
 import com.klimalakamil.channel_broadcaster.core.thread.SSLClientSettings;
 import org.apache.commons.cli.*;
 
@@ -12,6 +13,8 @@ import java.net.UnknownHostException;
 public class Main {
 
     public static void main(String[] args) throws ParseException, UnknownHostException {
+        System.setProperty("javax.net.debug", "all");
+
         Options options = new Options();
 
         options.addOption("h", "host", true, "Remote server host");
@@ -40,8 +43,6 @@ public class Main {
             settings.setServerPublicKeyStore("server.public");
 
             Client client = new Client(settings);
-
-            (new Thread(client)).start();
         }
     }
 }

@@ -5,10 +5,7 @@ import com.klimalakamil.channel_broadcaster.core.util.Log;
 import javax.net.ssl.HandshakeCompletedEvent;
 import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.SSLSocket;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 
 /**
  * Created by ekamkli on 2016-11-19.
@@ -24,34 +21,28 @@ public class ClientWorkerThread implements Runnable {
 
     @Override
     public void run() {
-
-        InputStream inputStream = null;
-        OutputStream outputStream = null;
-
         try {
-            inputStream = socket.getInputStream();
-            outputStream = socket.getOutputStream();
-        } catch (IOException e) {
-            Log.Warning.l("Failed to open client streams: " + e.getMessage());
-            running = false;
-        }
+            socket.startHandshake();
 
-        final PrintWriter printWriter = new PrintWriter(outputStream);
-        socket.addHandshakeCompletedListener(new HandshakeCompletedListener() {
-            @Override
-            public void handshakeCompleted(HandshakeCompletedEvent handshakeCompletedEvent) {
-                Log.Verbose.l("Wirting to client");
-                printWriter.write("elo\n");
+            InputStream inputStream = socket.getInputStream();
+            OutputStream outputStream = socket.getOutputStream();
+
+            while(running) {
+
             }
-        });
-        while (running) {
 
+        } catch(IOException e) {
+            Log.Warning.l("Error occured during communication with client " + e.getMessage());
+        } finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+    }
 
-        try {
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    void stop() {
+        running = false;
     }
 }
