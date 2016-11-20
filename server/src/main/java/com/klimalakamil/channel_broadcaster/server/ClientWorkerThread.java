@@ -44,7 +44,7 @@ public class ClientWorkerThread implements Runnable {
                 printWriter.write("elo\n");
             }
         });
-        while(running) {
+        while (running) {
 
         }
 

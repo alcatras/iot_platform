@@ -1,8 +1,8 @@
 package com.klimalakamil.channel_broadcaster.server.parser;
 
 import com.klimalakamil.channel_broadcaster.core.parser.XmlParser;
+import com.klimalakamil.channel_broadcaster.core.thread.SSLServerSettings;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.net.InetAddress;
@@ -12,19 +12,11 @@ import java.text.ParseException;
 /**
  * Created by ekamkli on 2016-11-19.
  */
-public class ServerSettings extends XmlParser {
-
-    private InetAddress inetAddress;
-    private int port;
-
-    private int backlogSize;
-    private int maxConnections;
-    private String keyStore;
+public class ServerSettings extends SSLServerSettings implements XmlParser {
 
     @Override
-    protected void parseDocument(Element root) throws ParseException {
+    public void parseDocument(Element root) throws ParseException {
         NodeList connectionSettings = ((Element) root.getElementsByTagName("connection").item(0)).getElementsByTagName("value");
-
 
         for (int i = 0; i < connectionSettings.getLength(); i++) {
             Element element = (Element) connectionSettings.item(i);
@@ -32,17 +24,17 @@ public class ServerSettings extends XmlParser {
             String name = element.getAttribute("name");
             String value = element.getTextContent();
 
-            if(name.equals("host")) {
+            if (name.equals("host")) {
                 try {
                     inetAddress = InetAddress.getByName(value);
                 } catch (UnknownHostException e) {
                     throw new ParseException("Unknown host: " + value, 0);
                 }
-            } else if(name.equals("port")) {
+            } else if (name.equals("port")) {
                 port = Integer.parseInt(value);
-            } else if(name.equals("backlog_size")) {
+            } else if (name.equals("backlog_size")) {
                 backlogSize = Integer.parseInt(value);
-            } else if(name.equals("max_connections")) {
+            } else if (name.equals("max_connections")) {
                 maxConnections = Integer.parseInt(value);
             }
         }
@@ -55,29 +47,13 @@ public class ServerSettings extends XmlParser {
             String name = element.getAttribute("name");
             String value = element.getTextContent();
 
-            if(name.equals("key_store")) {
-                keyStore = value;
+            if (name.equals("server_private_key")) {
+                serverPrivateKeyStore = value;
+            } else if (name.equals("server_private_key_password")) {
+                serverKeyStorePassword = value.toCharArray();
+            } else if (name.equals("client_public_key")) {
+                clientPublicKeyStore = value;
             }
         }
-    }
-
-    public InetAddress getInetAddress() {
-        return inetAddress;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public int getBacklogSize() {
-        return backlogSize;
-    }
-
-    public int getMaxConnections() {
-        return maxConnections;
-    }
-
-    public String getKeyStore() {
-        return keyStore;
     }
 }

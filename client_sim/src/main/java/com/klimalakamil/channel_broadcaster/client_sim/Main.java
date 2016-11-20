@@ -1,10 +1,8 @@
 package com.klimalakamil.channel_broadcaster.client_sim;
 
-import com.klimalakamil.channel_broadcaster.core.thread.SSLClientThread;
+import com.klimalakamil.channel_broadcaster.core.thread.SSLClientSettings;
 import org.apache.commons.cli.*;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -19,8 +17,7 @@ public class Main {
         options.addOption("h", "host", true, "Remote server host");
         options.addOption("p", "port", true, "Remote server port");
 
-        options.addOption("c", "certificate", true, "Key store file");
-        options.addOption("p", "password", true, "Key store password");
+        options.addOption("x", "password", true, "Key store password");
 
         CommandLineParser parser = new DefaultParser();
         CommandLine commandLine = parser.parse(options, args);
@@ -28,18 +25,21 @@ public class Main {
         String host = commandLine.getOptionValue("h");
         int port = Integer.parseInt(commandLine.getOptionValue("p"));
 
-        String certificate = commandLine.getOptionValue("c");
-        String password = commandLine.getOptionValue("p");
+        String password = commandLine.getOptionValue("x");
 
-        if(host == null || port == 0 || certificate == null) {
+        if (host == null || port == 0 || password == null) {
             System.out.println("Invalid arguments");
             HelpFormatter helpFormatter = new HelpFormatter();
             helpFormatter.printHelp("client", options);
         } else {
-            System.setProperty("javax.net.ssl.keyStore", "client.jks");
-            System.setProperty("javax.net.ssl.keyStorePassword", "egWre3U2");
+            SSLClientSettings settings = new SSLClientSettings();
+            settings.setClientKeyStorePassword(password.toCharArray());
+            settings.setClientPrivateKeyStore("client.private");
+            settings.setInetAddress(InetAddress.getByName(host));
+            settings.setPort(port);
+            settings.setServerPublicKeyStore("server.public");
 
-            Client client = new Client(port, InetAddress.getByName(host));
+            Client client = new Client(settings);
 
             (new Thread(client)).start();
         }

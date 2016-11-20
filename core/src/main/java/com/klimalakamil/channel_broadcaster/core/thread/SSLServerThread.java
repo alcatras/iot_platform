@@ -2,12 +2,11 @@ package com.klimalakamil.channel_broadcaster.core.thread;
 
 import com.klimalakamil.channel_broadcaster.core.util.Log;
 
-import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.SSLSocket;
+import javax.net.ssl.*;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
+import java.security.KeyStore;
+import java.security.SecureRandom;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -16,34 +15,62 @@ import java.util.concurrent.Executors;
  */
 public abstract class SSLServerThread implements Runnable {
 
-    private int port;
-    private InetAddress inetAddress;
-
-    private int backlog;
     private boolean running = true;
+    private SSLServerSettings settings;
 
     private ExecutorService threadPool;
 
-    protected SSLServerThread(int port, InetAddress inetAddress, int backlog, int maxThreads) {
-        this.port = port;
-        this.inetAddress = inetAddress;
-        this.backlog = backlog;
+    protected SSLServerThread(SSLServerSettings settings) {
+        this.settings = settings;
 
-        threadPool = Executors.newWorkStealingPool(maxThreads);
+        threadPool = Executors.newWorkStealingPool(settings.getMaxConnections());
     }
 
     public void run() {
-        SSLServerSocketFactory sslSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+        SecureRandom secureRandom = new SecureRandom();
+        secureRandom.nextInt();
+
+        KeyStore serverKeyStore = null;
+        KeyStore clientKeyStore = null;
+
+        TrustManagerFactory trustManagerFactory = null;
+        KeyManagerFactory keyManagerFactory = null;
+
+        SSLContext sslContext = null;
+
+        try {
+            serverKeyStore = KeyStore.getInstance("JKS");
+            serverKeyStore.load(new FileInputStream(settings.getServerPrivateKeyStore()), settings.getServerKeyStorePassword());
+
+            clientKeyStore = KeyStore.getInstance("JKS");
+            clientKeyStore.load(new FileInputStream(settings.getClientPublicKeyStore()), "public".toCharArray());
+
+            trustManagerFactory = TrustManagerFactory.getInstance("SunX509");
+            trustManagerFactory.init(clientKeyStore);
+
+            keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
+            keyManagerFactory.init(serverKeyStore, settings.getServerKeyStorePassword());
+
+            sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), secureRandom);
+
+        } catch (Exception e) {
+            Log.Error.l("Failed to create SSLContext " + e.getMessage());
+            return;
+        }
+
+        SSLServerSocketFactory sslSocketFactory = sslContext.getServerSocketFactory();
         SSLServerSocket sslServerSocket = null;
         try {
-            sslServerSocket = (SSLServerSocket) sslSocketFactory.createServerSocket(port, backlog, inetAddress);
+            sslServerSocket = (SSLServerSocket) sslSocketFactory.createServerSocket(settings.getPort(), settings.getBacklogSize(), settings.getInetAddress());
+            sslServerSocket.setNeedClientAuth(true);
         } catch (IOException e) {
             setupFailed(e);
             return;
         }
 
         setup();
-        Log.Verbose.l("Server is listening on " + inetAddress.toString() + ":" + port);
+        Log.Verbose.l("Server is listening on " + settings.getInetAddress().toString() + ":" + settings.getPort());
 
         while (running) {
             SSLSocket sslClientSocket = null;

@@ -16,12 +16,9 @@ import java.text.ParseException;
 /**
  * Created by ekamkli on 2016-10-26.
  */
-public abstract class XmlParser {
+public interface XmlParser {
 
-    public XmlParser() {
-    }
-
-    public void parse(String filename) throws FileNotFoundException, ParseException {
+    default void parse(String filename) throws FileNotFoundException, ParseException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         Document document = null;
 
@@ -36,7 +33,7 @@ public abstract class XmlParser {
         parseDocument(document.getDocumentElement());
     }
 
-    public void parse(InputStream stream) throws IOException, ParserConfigurationException, SAXException, ParseException {
+    default void parse(InputStream stream) throws IOException, ParserConfigurationException, SAXException, ParseException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         Document document = null;
 
@@ -51,5 +48,5 @@ public abstract class XmlParser {
         parseDocument(document.getDocumentElement());
     }
 
-    protected abstract void parseDocument(Element root) throws ParseException;
+    void parseDocument(Element root) throws ParseException;
 }

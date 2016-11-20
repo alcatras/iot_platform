@@ -7,6 +7,8 @@
     </connection>
 
     <security>
-        <value name="key_store">server.jks</value>
+        <value name="server_private_key">server.private</value>
+        <value name="server_private_key_password">sOQe3ZiR</value>
+        <value name="client_public_key">client.public</value>
     </security>
 </server>
