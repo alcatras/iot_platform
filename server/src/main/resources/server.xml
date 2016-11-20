@@ -7,6 +7,6 @@
     </connection>
 
     <security>
-        <value name="key_store">key.jks</value>
+        <value name="key_store">server.jks</value>
     </security>
 </server>

@@ -36,7 +36,10 @@ public class Main {
             HelpFormatter helpFormatter = new HelpFormatter();
             helpFormatter.printHelp("client", options);
         } else {
-            Client client = new Client(port, InetAddress.getByName(host), certificate, password);
+            System.setProperty("javax.net.ssl.keyStore", "client.jks");
+            System.setProperty("javax.net.ssl.keyStorePassword", "egWre3U2");
+
+            Client client = new Client(port, InetAddress.getByName(host));
 
             (new Thread(client)).start();
         }

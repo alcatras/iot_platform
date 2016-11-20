@@ -17,14 +17,11 @@ public abstract class SSLClientThread implements Runnable {
     private int port;
     private InetAddress inetAddress;
 
-    public SSLClientThread(int port, InetAddress inetAddress, String keyStore, String password) {
+    public SSLClientThread(int port, InetAddress inetAddress) {
         super();
 
         this.port = port;
         this.inetAddress = inetAddress;
-
-        System.setProperty("javax.net.ssl.keyStore", keyStore);
-        System.setProperty("javax.net.ssl.keyStorePassword", password);
     }
 
     public final void run() {
