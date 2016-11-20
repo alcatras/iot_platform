@@ -1,4 +1,4 @@
-package com.klimalakamil.channel_broadcaster.core.thread;
+package com.klimalakamil.channel_broadcaster.core.ssl;
 
 import com.klimalakamil.channel_broadcaster.core.util.Log;
 

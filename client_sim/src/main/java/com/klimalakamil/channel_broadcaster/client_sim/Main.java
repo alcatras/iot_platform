@@ -1,7 +1,7 @@
 package com.klimalakamil.channel_broadcaster.client_sim;
 
 import com.klimalakamil.channel_broadcaster.api.client.Client;
-import com.klimalakamil.channel_broadcaster.core.thread.SSLClientSettings;
+import com.klimalakamil.channel_broadcaster.core.ssl.SSLClientSettings;
 import org.apache.commons.cli.*;
 
 import java.net.InetAddress;

@@ -1,4 +1,4 @@
-package com.klimalakamil.channel_broadcaster.api.client;
+package com.klimalakamil.channel_broadcaster.core.authentication;
 
 /**
  * Created by ekamkli on 2016-11-20.
@@ -9,10 +9,13 @@ public class DeviceIdentity {
     private int deviceType;
     private int deviceId;
 
-    public DeviceIdentity(int vendorId, int deviceType, int deviceId) {
+    private String user;
+
+    public DeviceIdentity(int vendorId, int deviceType, int deviceId, String user) {
         this.vendorId = vendorId;
         this.deviceType = deviceType;
         this.deviceId = deviceId;
+        this.user = user;
     }
 
     public int getVendorId() {
@@ -37,5 +40,13 @@ public class DeviceIdentity {
 
     public void setDeviceId(int deviceId) {
         this.deviceId = deviceId;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
     }
 }

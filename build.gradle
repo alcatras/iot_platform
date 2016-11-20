@@ -14,6 +14,8 @@ subprojects {
 
     dependencies {
         testCompile group: 'junit', name: 'junit', version: '4.11'
+
+        compile 'com.google.code.gson:gson:2.8.0'
     }
 }
 
@@ -33,6 +35,10 @@ project(':server') {
             attributes 'Main-Class': mainClassName,
                     'Implementation-Version': version,
                     'Implementation-Name': project.name + '-server'
+        }
+
+        from {
+            configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
         }
     }
 

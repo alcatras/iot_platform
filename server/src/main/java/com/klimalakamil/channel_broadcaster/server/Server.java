@@ -1,8 +1,8 @@
 package com.klimalakamil.channel_broadcaster.server;
 
 
-import com.klimalakamil.channel_broadcaster.core.thread.SSLServerSettings;
-import com.klimalakamil.channel_broadcaster.core.thread.SSLServerThread;
+import com.klimalakamil.channel_broadcaster.core.ssl.SSLServerSettings;
+import com.klimalakamil.channel_broadcaster.core.ssl.SSLServerThread;
 import com.klimalakamil.channel_broadcaster.core.util.Log;
 import com.klimalakamil.channel_broadcaster.server.parser.ServerSettings;
 

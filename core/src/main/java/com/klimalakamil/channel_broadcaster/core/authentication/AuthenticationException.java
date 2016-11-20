@@ -1,4 +1,4 @@
-package com.klimalakamil.channel_broadcaster.api.client;
+package com.klimalakamil.channel_broadcaster.core.authentication;
 
 /**
  * Created by ekamkli on 2016-11-20.

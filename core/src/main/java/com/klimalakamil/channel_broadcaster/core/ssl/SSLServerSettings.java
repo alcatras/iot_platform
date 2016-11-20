@@ -1,4 +1,4 @@
-package com.klimalakamil.channel_broadcaster.core.thread;
+package com.klimalakamil.channel_broadcaster.core.ssl;
 
 import java.net.InetAddress;
 
