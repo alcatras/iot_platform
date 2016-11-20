@@ -3,8 +3,7 @@ package com.klimalakamil.channel_broadcaster.client_sim;
 import com.klimalakamil.channel_broadcaster.core.thread.SSLClientThread;
 import com.klimalakamil.channel_broadcaster.core.util.Log;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetAddress;
 
 /**
@@ -12,8 +11,8 @@ import java.net.InetAddress;
  */
 public class Client extends SSLClientThread {
 
-    public Client(int port, InetAddress inetAddress, String keyStore, String password) {
-        super(port, inetAddress, keyStore, password);
+    public Client(int port, InetAddress inetAddress) {
+        super(port, inetAddress);
     }
 
     @Override
@@ -29,6 +28,13 @@ public class Client extends SSLClientThread {
 
     @Override
     protected void loop(InputStream inputStream, OutputStream outputStream) {
-
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        while(true) {
+            try {
+                System.out.println(reader.readLine());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

@@ -22,8 +22,8 @@ import java.util.TimeZone;
  */
 public class Server extends SSLServerThread {
 
-    protected Server(int port, InetAddress inetAddress, int backlog, int maxThreads, String keyStore, String password) {
-        super(port, inetAddress, backlog, maxThreads, keyStore, password);
+    protected Server(int port, InetAddress inetAddress, int backlog, int maxThreads) {
+        super(port, inetAddress, backlog, maxThreads);
     }
 
     public static void main(String[] args) throws InterruptedException, FileNotFoundException {
@@ -46,8 +46,10 @@ public class Server extends SSLServerThread {
             Log.Warning.l("Invalid server settings file: " + e.getMessage());
         }
 
-        Server server = new Server(settings.getPort(), settings.getInetAddress(), settings.getBacklogSize(), settings.getMaxConnections(),
-                settings.getKeyStore(), "");
+        System.setProperty("javax.net.ssl.keyStore", "server.jks");
+        System.setProperty("javax.net.ssl.keyStorePassword", "sOQe3ZiR");
+
+        Server server = new Server(settings.getPort(), settings.getInetAddress(), settings.getBacklogSize(), settings.getMaxConnections());
 
         (new Thread(server)).start();
     }

@@ -24,15 +24,12 @@ public abstract class SSLServerThread implements Runnable {
 
     private ExecutorService threadPool;
 
-    protected SSLServerThread(int port, InetAddress inetAddress, int backlog, int maxThreads, String keyStore, String password) {
+    protected SSLServerThread(int port, InetAddress inetAddress, int backlog, int maxThreads) {
         this.port = port;
         this.inetAddress = inetAddress;
         this.backlog = backlog;
 
         threadPool = Executors.newWorkStealingPool(maxThreads);
-
-        System.setProperty("javax.net.ssl.keyStore", keyStore);
-        System.setProperty("javax.net.ssl.keyStorePassword", password);
     }
 
     public void run() {
