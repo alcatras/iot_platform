@@ -5,6 +5,5 @@ package com.klimalakamil.channel_broadcaster.core.ssl;
  */
 @FunctionalInterface
 public interface ConnectionListener {
-
     void onReceive(String message);
 }

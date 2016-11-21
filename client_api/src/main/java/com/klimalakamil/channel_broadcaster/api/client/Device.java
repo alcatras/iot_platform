@@ -7,9 +7,9 @@ import com.klimalakamil.channel_broadcaster.core.authentication.DeviceIdentity;
  */
 public class Device {
     private DeviceIdentity deviceIdentity;
-    private String sessionId;
+    private long sessionId;
 
-    public Device(DeviceIdentity deviceIdentity, String sessionId) {
+    public Device(DeviceIdentity deviceIdentity, long sessionId) {
         this.deviceIdentity = deviceIdentity;
         this.sessionId = sessionId;
     }

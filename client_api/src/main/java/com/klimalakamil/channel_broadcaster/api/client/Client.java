@@ -1,17 +1,12 @@
 package com.klimalakamil.channel_broadcaster.api.client;
 
 import com.klimalakamil.channel_broadcaster.core.channel.Channel;
-import com.klimalakamil.channel_broadcaster.core.channel.ChannelBuilder;
 import com.klimalakamil.channel_broadcaster.core.channel.ChannelException;
 import com.klimalakamil.channel_broadcaster.core.channel.ChannelPrototype;
 import com.klimalakamil.channel_broadcaster.core.authentication.AuthenticationException;
 import com.klimalakamil.channel_broadcaster.core.authentication.DeviceIdentity;
 import com.klimalakamil.channel_broadcaster.core.ssl.ConnectionListener;
-import com.klimalakamil.channel_broadcaster.core.ssl.SSLClientSettings;
 import com.klimalakamil.channel_broadcaster.core.ssl.SSLClientThread;
-
-import javax.net.ssl.SSLSocket;
-import java.io.IOException;
 
 /**
  * Created by ekamkli on 2016-11-19.
@@ -22,7 +17,7 @@ public class Client {
     private SSLClientThread clientThread;
 
     public Client(SSLClientSettings settings) {
-        clientThread = new SSLClientThread(settings);
+        clientThread = new SSLClient(settings);
         new Thread(clientThread).run();
     }
 

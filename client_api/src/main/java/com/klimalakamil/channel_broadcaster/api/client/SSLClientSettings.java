@@ -1,11 +1,11 @@
-package com.klimalakamil.channel_broadcaster.core.ssl;
+package com.klimalakamil.channel_broadcaster.api.client;
 
 import java.net.InetAddress;
 
 /**
  * Created by ekamkli on 2016-11-20.
  */
-public class SSLClientSettings {
+class SSLClientSettings {
 
     private InetAddress inetAddress;
     private int port;

@@ -16,120 +16,90 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by ekamkli on 2016-11-02.
  */
-public class SSLClientThread implements Runnable {
-
-    private SSLClientSettings settings;
+public abstract class SSLClientThread implements Runnable {
     private BlockingQueue<String> messages;
     private boolean running = true;
 
     private ConnectionListener connectionListener;
 
-    public SSLClientThread(SSLClientSettings settings) {
-        super();
-        this.settings = settings;
-
+    public SSLClientThread() {
         messages = new ArrayBlockingQueue<>(5);
     }
 
-    private SSLContext getSSLContext() throws Exception {
-        SecureRandom secureRandom = new SecureRandom();
-        secureRandom.nextInt();
+    protected abstract SSLContext setupSSLContext();
 
-        KeyStore serverKeyStore = KeyStore.getInstance("JKS");
-        serverKeyStore.load(new FileInputStream(settings.getServerPublicKeyStore()), "public".toCharArray());
-
-        KeyStore clientKeyStore = KeyStore.getInstance("JKS");
-        clientKeyStore.load(new FileInputStream(settings.getClientPrivateKeyStore()), settings.getClientKeyStorePassword());
-
-        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance("SunX509");
-        trustManagerFactory.init(serverKeyStore);
-
-        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
-
-        keyManagerFactory.init(clientKeyStore, settings.getClientKeyStorePassword());
-        settings.setClientKeyStorePassword("00000000".toCharArray());
-
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), secureRandom);
-
-        return sslContext;
-    }
+    protected abstract SSLSocket setupSSLSocket(SSLContext sslContext);
 
     public final void run() {
-        SSLContext sslContext = null;
-        try {
-            sslContext = getSSLContext();
-        } catch (Exception e) {
-            Log.Error.l("Failed to create SSL context: " + e.getMessage());
-            return;
-        }
+        SSLContext sslContext = setupSSLContext();
 
-        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-        SSLSocket sslSocket = null;
+        if (sslContext != null) {
 
-        try {
-            sslSocket = (SSLSocket) sslSocketFactory.createSocket(settings.getInetAddress(), settings.getPort());
-            sslSocket.startHandshake();
+            SSLSocket sslSocket = setupSSLSocket(sslContext);
+            if(sslSocket != null) {
 
-            InputStream inputStream = sslSocket.getInputStream();
-            OutputStream outputStream = sslSocket.getOutputStream();
+                try {
+                    sslSocket.startHandshake();
 
-            String outMessage;
+                    InputStream inputStream = sslSocket.getInputStream();
+                    OutputStream outputStream = sslSocket.getOutputStream();
 
-            final int CHUNK_SIZE = 2048;
+                    String outMessage;
 
-            byte[] inputBuffer = new byte[CHUNK_SIZE];
-            int bufferPosition = 0;
+                    final int CHUNK_SIZE = 2048;
 
-            List<byte[]> chunks = new ArrayList<>();
+                    byte[] inputBuffer = new byte[CHUNK_SIZE];
+                    int bufferPosition = 0;
 
-            try {
-                while (running) {
-                    int available = inputStream.available();
-                    if(available > 0) {
+                    List<byte[]> chunks = new ArrayList<>();
 
-                        while(bufferPosition + available >= CHUNK_SIZE) {
-                            int complement = CHUNK_SIZE - bufferPosition;
-                            available -= inputStream.read(inputBuffer, bufferPosition, complement);
-                            bufferPosition = 0;
+                        while (running) {
+                            int available = inputStream.available();
+                            if(available > 0) {
 
-                            chunks.add(inputBuffer);
-                            inputBuffer = new byte[CHUNK_SIZE];
+                                while(bufferPosition + available >= CHUNK_SIZE) {
+                                    int complement = CHUNK_SIZE - bufferPosition;
+                                    available -= inputStream.read(inputBuffer, bufferPosition, complement);
+                                    bufferPosition = 0;
+
+                                    chunks.add(inputBuffer);
+                                    inputBuffer = new byte[CHUNK_SIZE];
+                                }
+
+                                bufferPosition += inputStream.read(inputBuffer, bufferPosition, available);
+
+                                if(inputBuffer[bufferPosition-1] == '\n') {
+                                    StringBuilder stringBuilder = new StringBuilder(chunks.size() * CHUNK_SIZE + bufferPosition - 1);
+
+                                    for(byte[] chunk: chunks) {
+                                        stringBuilder.append(new String(chunk, "US-ASCII"));
+                                    }
+                                    stringBuilder.append(new String(inputBuffer, 0, bufferPosition, "US-ASCII"));
+
+                                    if(connectionListener != null) {
+                                        connectionListener.onReceive(stringBuilder.toString());
+                                    }
+                                }
+                            }
+
+                            outMessage = messages.poll(2, TimeUnit.MILLISECONDS);
+
+                            if (outMessage != null) {
+                                outputStream.write(outMessage.getBytes());
+                            }
                         }
 
-                        bufferPosition += inputStream.read(inputBuffer, bufferPosition, available);
-
-                        if(inputBuffer[bufferPosition-1] == '\n') {
-                            StringBuilder stringBuilder = new StringBuilder(chunks.size() * CHUNK_SIZE + bufferPosition - 1);
-
-                            for(byte[] chunk: chunks) {
-                                stringBuilder.append(new String(chunk, "US-ASCII"));
-                            }
-                            stringBuilder.append(new String(inputBuffer, 0, bufferPosition, "US-ASCII"));
-
-                            if(connectionListener != null) {
-                                connectionListener.onReceive(stringBuilder.toString());
-                            }
-                        }
-                    }
-
-                    outMessage = messages.poll(2, TimeUnit.MILLISECONDS);
-
-                    if (outMessage != null) {
-                        outputStream.write(outMessage.getBytes());
+                } catch (IOException e) {
+                    Log.Warning.l("Error occurred when trying to communicate over socket: " + e.getMessage());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        sslSocket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        } catch (IOException e) {
-            Log.Error.l(e.getMessage());
-        } finally {
-            try {
-                sslSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         }
     }
