@@ -19,7 +19,8 @@ public class PasswordHelper {
 
     private static final Logger logger = Logger.getLogger(PasswordHelper.class.getName());
 
-    private PasswordHelper() {}
+    private PasswordHelper() {
+    }
 
     public static byte[] generateSalt() {
         byte[] salt = new byte[16];
@@ -48,11 +49,11 @@ public class PasswordHelper {
     }
 
     private static boolean compareBytes(byte[] a, byte[] b) {
-        if(a.length != b.length)
+        if (a.length != b.length)
             return false;
 
         for (int i = 0; i < a.length; i++) {
-            if(a[i] != b[i])
+            if (a[i] != b[i])
                 return false;
         }
 

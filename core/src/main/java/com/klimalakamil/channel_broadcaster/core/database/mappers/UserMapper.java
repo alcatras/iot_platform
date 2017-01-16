@@ -7,8 +7,9 @@ import com.klimalakamil.channel_broadcaster.core.database.models.User;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Date;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -58,22 +59,27 @@ public class UserMapper extends AbstractDatabaseMapper<User> {
     }
 
     @Override
-    protected User createModel(ResultSet resultSet) {
+    protected List<User> createModels(ResultSet resultSet) {
         Base64.Decoder decoder = Base64.getDecoder();
-        User user = new User();
+        List<User> result = new ArrayList<>();
 
         try {
-            user.setId(resultSet.getInt("id"));
-            user.setUsername(resultSet.getString("username"));
-            user.setPasswordDigest(decoder.decode(resultSet.getString("psw_digest")));
-            user.setSalt(decoder.decode(resultSet.getString("salt")));
-            user.setDateCreated(LocalDateTime.parse(resultSet.getString("created_at")));
-            user.setDateUpdated(LocalDateTime.parse(resultSet.getString("updated_at")));
+            while (resultSet.next()) {
+                User user = new User();
+
+                user.setId(resultSet.getInt("id"));
+                user.setUsername(resultSet.getString("username"));
+                user.setPasswordDigest(decoder.decode(resultSet.getString("psw_digest")));
+                user.setSalt(decoder.decode(resultSet.getString("salt")));
+                user.setDateCreated(LocalDateTime.parse(resultSet.getString("created_at")));
+                user.setDateUpdated(LocalDateTime.parse(resultSet.getString("updated_at")));
+
+                result.add(user);
+            }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
-
-        return user;
+        return result;
     }
 
     @Override
@@ -81,32 +87,16 @@ public class UserMapper extends AbstractDatabaseMapper<User> {
         ResultSet resultSet = databaseHelper.executeQueryForResult("SELECT FROM " + getTableName(User.class) +
                 " WHERE id = " + id);
 
-        try {
-            if (resultSet.next()) {
-                User user = createModel(resultSet);
-                resultSet.close();
-                return user;
-            }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
-        }
-        return null;
+        List<User> users = createModels(resultSet);
+        return users.size() > 0 ? users.get(0) : null;
     }
 
     public User get(String username) {
         ResultSet resultSet = databaseHelper.executeQueryForResult("SELECT FROM " + getTableName(User.class) +
                 " WHERE username = " + username);
 
-        try {
-            if (resultSet.next()) {
-                User user = createModel(resultSet);
-                resultSet.close();
-                return user;
-            }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
-        }
-        return null;
+        List<User> users = createModels(resultSet);
+        return users.size() > 0 ? users.get(0) : null;
     }
 
     @Override

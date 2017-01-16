@@ -1,6 +1,5 @@
 package com.klimalakamil.channel_broadcaster.core.ssl;
 
-import com.klimalakamil.channel_broadcaster.core.util.Log;
 
 import javax.net.ssl.*;
 import java.io.FileInputStream;
@@ -9,6 +8,8 @@ import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by ekamkli on 2016-10-26.
@@ -19,6 +20,8 @@ public abstract class SSLServerThread implements Runnable {
     private SSLServerSettings settings;
 
     private ExecutorService threadPool;
+
+    private Logger logger = Logger.getLogger(SSLServerThread.class.getName());
 
     protected SSLServerThread(SSLServerSettings settings) {
         this.settings = settings;
@@ -55,7 +58,7 @@ public abstract class SSLServerThread implements Runnable {
             sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), secureRandom);
 
         } catch (Exception e) {
-            Log.Error.l("Failed to create SSLContext " + e.getMessage());
+            logger.log(Level.SEVERE, "Failed to create SSLContext + e.getMessage()", e);
             return;
         }
 
@@ -70,17 +73,17 @@ public abstract class SSLServerThread implements Runnable {
         }
 
         setup();
-        Log.Verbose.l("Server is listening on " + settings.getInetAddress().toString() + ":" + settings.getPort());
+        logger.log(Level.INFO, "Server is listening on " + settings.getInetAddress().toString() + ":" + settings.getPort());
 
         while (running) {
             SSLSocket sslClientSocket = null;
 
             try {
                 sslClientSocket = (SSLSocket) sslServerSocket.accept();
-                Log.Verbose.l("Accepted client connection from " + sslClientSocket.getRemoteSocketAddress());
+                logger.log(Level.INFO, "Accepted client connection from " + sslClientSocket.getRemoteSocketAddress());
             } catch (IOException e) {
                 acceptConnectionFailed(e);
-                Log.Warning.l("Failed to accept client connection:" + e.getMessage());
+                logger.log(Level.WARNING, "Failed to accept client connection:" + e.getMessage(), e);
                 continue;
             }
 
@@ -90,7 +93,7 @@ public abstract class SSLServerThread implements Runnable {
         finish();
 
         try {
-            Log.Verbose.l("Closing server socket");
+            logger.log(Level.INFO, "Closing server socket");
             sslServerSocket.close();
         } catch (IOException ignored) {
         }

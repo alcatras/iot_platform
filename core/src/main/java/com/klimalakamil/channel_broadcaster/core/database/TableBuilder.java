@@ -1,9 +1,5 @@
 package com.klimalakamil.channel_broadcaster.core.database;
 
-import com.klimalakamil.channel_broadcaster.core.database.models.AbstractModel;
-
-import javax.xml.crypto.Data;
-
 /**
  * Created by kamil on 15.01.17.
  */

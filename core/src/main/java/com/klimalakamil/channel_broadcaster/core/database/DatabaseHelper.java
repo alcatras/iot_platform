@@ -9,7 +9,7 @@ import java.util.logging.Logger;
  */
 public class DatabaseHelper {
 
-    Logger logger;
+    private Logger logger;
 
     private Connection connection;
     private String version;
@@ -20,7 +20,7 @@ public class DatabaseHelper {
             connection = DriverManager.getConnection(url, user, password);
 
             ResultSet versionResultSet = executeQueryForResult("SELECT VERSION()");
-            if(versionResultSet.next()) {
+            if (versionResultSet.next()) {
                 version = versionResultSet.getString(1);
                 versionResultSet.close();
             }

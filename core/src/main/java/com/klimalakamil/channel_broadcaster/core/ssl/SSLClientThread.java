@@ -1,17 +1,18 @@
 package com.klimalakamil.channel_broadcaster.core.ssl;
 
 
-import com.klimalakamil.channel_broadcaster.core.util.Log;
-
-import javax.net.ssl.*;
-import java.io.*;
-import java.security.KeyStore;
-import java.security.SecureRandom;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by ekamkli on 2016-11-02.
@@ -21,6 +22,8 @@ public abstract class SSLClientThread implements Runnable {
     private boolean running = true;
 
     private ConnectionListener connectionListener;
+
+    private Logger logger = Logger.getLogger(SSLClientThread.class.getName());
 
     public SSLClientThread() {
         messages = new ArrayBlockingQueue<>(5);
@@ -36,7 +39,7 @@ public abstract class SSLClientThread implements Runnable {
         if (sslContext != null) {
 
             SSLSocket sslSocket = setupSSLSocket(sslContext);
-            if(sslSocket != null) {
+            if (sslSocket != null) {
 
                 try {
                     sslSocket.startHandshake();
@@ -53,44 +56,44 @@ public abstract class SSLClientThread implements Runnable {
 
                     List<byte[]> chunks = new ArrayList<>();
 
-                        while (running) {
-                            int available = inputStream.available();
-                            if(available > 0) {
+                    while (running) {
+                        int available = inputStream.available();
+                        if (available > 0) {
 
-                                while(bufferPosition + available >= CHUNK_SIZE) {
-                                    int complement = CHUNK_SIZE - bufferPosition;
-                                    available -= inputStream.read(inputBuffer, bufferPosition, complement);
-                                    bufferPosition = 0;
+                            while (bufferPosition + available >= CHUNK_SIZE) {
+                                int complement = CHUNK_SIZE - bufferPosition;
+                                available -= inputStream.read(inputBuffer, bufferPosition, complement);
+                                bufferPosition = 0;
 
-                                    chunks.add(inputBuffer);
-                                    inputBuffer = new byte[CHUNK_SIZE];
-                                }
-
-                                bufferPosition += inputStream.read(inputBuffer, bufferPosition, available);
-
-                                if(inputBuffer[bufferPosition-1] == '\n') {
-                                    StringBuilder stringBuilder = new StringBuilder(chunks.size() * CHUNK_SIZE + bufferPosition - 1);
-
-                                    for(byte[] chunk: chunks) {
-                                        stringBuilder.append(new String(chunk, "US-ASCII"));
-                                    }
-                                    stringBuilder.append(new String(inputBuffer, 0, bufferPosition, "US-ASCII"));
-
-                                    if(connectionListener != null) {
-                                        connectionListener.onReceive(stringBuilder.toString());
-                                    }
-                                }
+                                chunks.add(inputBuffer);
+                                inputBuffer = new byte[CHUNK_SIZE];
                             }
 
-                            outMessage = messages.poll(2, TimeUnit.MILLISECONDS);
+                            bufferPosition += inputStream.read(inputBuffer, bufferPosition, available);
 
-                            if (outMessage != null) {
-                                outputStream.write(outMessage.getBytes());
+                            if (inputBuffer[bufferPosition - 1] == '\n') {
+                                StringBuilder stringBuilder = new StringBuilder(chunks.size() * CHUNK_SIZE + bufferPosition - 1);
+
+                                for (byte[] chunk : chunks) {
+                                    stringBuilder.append(new String(chunk, "US-ASCII"));
+                                }
+                                stringBuilder.append(new String(inputBuffer, 0, bufferPosition, "US-ASCII"));
+
+                                if (connectionListener != null) {
+                                    connectionListener.onReceive(stringBuilder.toString());
+                                }
                             }
                         }
 
+                        outMessage = messages.poll(2, TimeUnit.MILLISECONDS);
+
+                        if (outMessage != null) {
+                            outputStream.write(outMessage.getBytes());
+                        }
+                    }
+
                 } catch (IOException e) {
-                    Log.Warning.l("Error occurred when trying to communicate over socket: " + e.getMessage());
+                    logger.log(Level.WARNING, "Error occurred when trying to communicate over socket: " + e.getMessage(), e);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } finally {

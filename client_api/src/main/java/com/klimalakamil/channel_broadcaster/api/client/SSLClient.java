@@ -3,20 +3,14 @@ package com.klimalakamil.channel_broadcaster.api.client;
 
 import com.klimalakamil.channel_broadcaster.core.ssl.ConnectionListener;
 import com.klimalakamil.channel_broadcaster.core.ssl.SSLClientThread;
-import com.klimalakamil.channel_broadcaster.core.util.Log;
 
 import javax.net.ssl.*;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by ekamkli on 2016-11-02.
@@ -26,6 +20,8 @@ class SSLClient extends SSLClientThread {
     private SSLClientSettings settings;
 
     private ConnectionListener connectionListener;
+
+    private Logger logger = Logger.getLogger(SSLClient.class.getName());
 
     public SSLClient(SSLClientSettings settings) {
         super();
@@ -56,7 +52,7 @@ class SSLClient extends SSLClientThread {
 
             return sslContext;
         } catch (Exception e) {
-            Log.Error.l("Failed to create SSL context: " + e.getMessage());
+            logger.log(Level.SEVERE, "Failed to create SSL context: " + e.getMessage(), e);
             return null;
         }
     }
@@ -66,7 +62,7 @@ class SSLClient extends SSLClientThread {
             SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
             return (SSLSocket) sslSocketFactory.createSocket(settings.getInetAddress(), settings.getPort());
         } catch (IOException e) {
-            Log.Error.l("Failed to create SSL socket: " + e.getMessage());
+            logger.log(Level.SEVERE, "Failed to create SSL socket: " + e.getMessage(), e);
             return null;
         }
     }

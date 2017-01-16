@@ -5,6 +5,7 @@ import com.klimalakamil.channel_broadcaster.core.database.TableBuilder;
 import com.klimalakamil.channel_broadcaster.core.database.models.AbstractModel;
 
 import java.sql.ResultSet;
+import java.util.List;
 
 /**
  * Created by kamil on 15.01.17.
@@ -17,7 +18,7 @@ public abstract class AbstractDatabaseMapper<T extends AbstractModel> {
 
         this.databaseHelper = helper;
 
-        if(!helper.checkIfTableExists(clazz.getCanonicalName())) {
+        if (!helper.checkIfTableExists(clazz.getCanonicalName())) {
             getTableBuilder().create(helper);
         }
     }
@@ -32,7 +33,7 @@ public abstract class AbstractDatabaseMapper<T extends AbstractModel> {
 
     protected abstract TableBuilder getTableBuilder();
 
-    protected abstract T createModel(ResultSet resultSet);
+    protected abstract List<T> createModels(ResultSet resultSet);
 
     protected String getTableName(Class clazz) {
         return clazz.getCanonicalName();

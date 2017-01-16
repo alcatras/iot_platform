@@ -1,11 +1,12 @@
 package com.klimalakamil.channel_broadcaster.server;
 
-import com.klimalakamil.channel_broadcaster.core.util.Log;
 
-import javax.net.ssl.HandshakeCompletedEvent;
-import javax.net.ssl.HandshakeCompletedListener;
 import javax.net.ssl.SSLSocket;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by ekamkli on 2016-11-19.
@@ -14,6 +15,8 @@ public class ClientWorkerThread implements Runnable {
 
     private SSLSocket socket;
     private boolean running = true;
+
+    private Logger logger = Logger.getLogger(ClientWorkerThread.class.getName());
 
     public ClientWorkerThread(SSLSocket socket) {
         this.socket = socket;
@@ -27,12 +30,12 @@ public class ClientWorkerThread implements Runnable {
             InputStream inputStream = socket.getInputStream();
             OutputStream outputStream = socket.getOutputStream();
 
-            while(running) {
+            while (running) {
 
             }
 
-        } catch(IOException e) {
-            Log.Warning.l("Error occured during communication with client " + e.getMessage());
+        } catch (IOException e) {
+            logger.log(Level.WARNING, "Error occured during communication with client ", e);
         } finally {
             try {
                 socket.close();

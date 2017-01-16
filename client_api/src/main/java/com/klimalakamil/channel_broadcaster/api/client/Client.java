@@ -1,10 +1,10 @@
 package com.klimalakamil.channel_broadcaster.api.client;
 
+import com.klimalakamil.channel_broadcaster.core.authentication.AuthenticationException;
+import com.klimalakamil.channel_broadcaster.core.authentication.DeviceIdentity;
 import com.klimalakamil.channel_broadcaster.core.channel.Channel;
 import com.klimalakamil.channel_broadcaster.core.channel.ChannelException;
 import com.klimalakamil.channel_broadcaster.core.channel.ChannelPrototype;
-import com.klimalakamil.channel_broadcaster.core.authentication.AuthenticationException;
-import com.klimalakamil.channel_broadcaster.core.authentication.DeviceIdentity;
 import com.klimalakamil.channel_broadcaster.core.ssl.ConnectionListener;
 import com.klimalakamil.channel_broadcaster.core.ssl.SSLClientThread;
 
@@ -22,7 +22,7 @@ public class Client {
     }
 
     public Device authenticate(DeviceIdentity identity, String user, char[] password) throws AuthenticationException {
-        
+
         return null;
     }
 

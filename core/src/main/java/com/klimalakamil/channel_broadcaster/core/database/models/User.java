@@ -29,16 +29,12 @@ public class User extends AbstractModel {
         this.username = username;
     }
 
-    public void setSalt(byte[] salt) {
-        this.salt = salt;
+    public byte[] getPasswordDigest() {
+        return passwordDigest;
     }
 
     public void setPasswordDigest(byte[] passwordDigest) {
         this.passwordDigest = passwordDigest;
-    }
-
-    public byte[] getPasswordDigest() {
-        return passwordDigest;
     }
 
     public void setPassword(char[] password) {
@@ -48,5 +44,9 @@ public class User extends AbstractModel {
 
     public byte[] getSalt() {
         return salt;
+    }
+
+    public void setSalt(byte[] salt) {
+        this.salt = salt;
     }
 }
