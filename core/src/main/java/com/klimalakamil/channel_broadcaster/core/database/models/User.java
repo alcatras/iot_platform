@@ -5,7 +5,7 @@ import com.klimalakamil.channel_broadcaster.core.authentication.PasswordHelper;
 /**
  * Created by kamil on 15.01.17.
  */
-public class User extends AbstractModel {
+public class User extends Model {
 
     private String username;
     private byte[] passwordDigest;

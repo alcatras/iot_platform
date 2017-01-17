@@ -5,17 +5,17 @@ import java.time.LocalDateTime;
 /**
  * Created by kamil on 15.01.17.
  */
-public abstract class AbstractModel {
+public abstract class Model {
     private int id;
 
     private LocalDateTime dateCreated;
     private LocalDateTime dateUpdated;
 
-    public AbstractModel() {
+    public Model() {
 
     }
 
-    public AbstractModel(int id) {
+    public Model(int id) {
         this.id = id;
         setDateCreated();
     }
