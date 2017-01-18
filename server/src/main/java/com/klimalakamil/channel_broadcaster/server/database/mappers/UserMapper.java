@@ -15,12 +15,10 @@ import java.util.logging.Logger;
  */
 public class UserMapper extends Mapper<User> {
 
-    private Logger logger;
+    private Logger logger = Logger.getLogger(this.getClass().getName());
 
-    protected UserMapper(DatabaseHelper helper) throws SQLException {
+    public UserMapper(DatabaseHelper helper) throws SQLException {
         super(helper, User.class);
-
-        logger = Logger.getLogger(this.getClass().getCanonicalName());
     }
 
     @Override

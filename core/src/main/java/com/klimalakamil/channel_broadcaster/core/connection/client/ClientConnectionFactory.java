@@ -89,7 +89,10 @@ public abstract class ClientConnectionFactory {
         InputStream inputStream;
         OutputStream outputStream;
 
-        int available = 0;
+        private static final int CHUNK_SIZE = 2048;
+        private byte[] inputBuffer = new byte[CHUNK_SIZE];
+        private int available = 0;
+        private int bufferPosition = 0;
 
         BasicClientConnection(T socket) {
             this.socket = socket;
@@ -126,10 +129,30 @@ public abstract class ClientConnectionFactory {
         @Override
         protected void loop() {
             try {
+                available = inputStream.available();
+                if(available > 0) {
+                    while(bufferPosition + available >= CHUNK_SIZE) {
+                        int remaining = CHUNK_SIZE - bufferPosition;
+                        available -= inputStream.read(inputBuffer, bufferPosition, remaining);
+                        bufferPosition = 0;
+                        eachListener(l -> l.receive(inputBuffer, CHUNK_SIZE));
+                        inputBuffer = new byte[CHUNK_SIZE];
+                    }
+
+                    bufferPosition += inputStream.read(inputBuffer, bufferPosition, available);
+
+                    // TODO: something better
+                    if(inputBuffer[bufferPosition - 1] == '\n') {
+                        eachListener(l -> l.receive(inputBuffer, bufferPosition));
+                        bufferPosition = 0;
+                        inputBuffer = new byte[CHUNK_SIZE];
+                    }
+                }
+
                 if ((available += inputStream.available()) > 0) {
                     byte data[] = new byte[available];
                     available -= inputStream.read(data);
-                    eachListener(l -> l.receive(data));
+                    eachListener(l -> l.receive(data, CHUNK_SIZE));
                 }
             } catch (IOException e) {
                 logger.log(Level.WARNING, e.getMessage(), e);

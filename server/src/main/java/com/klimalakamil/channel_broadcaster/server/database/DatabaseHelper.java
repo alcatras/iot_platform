@@ -17,6 +17,7 @@ public class DatabaseHelper {
     public DatabaseHelper(String url, String user, String password) {
         logger = Logger.getLogger(DatabaseHelper.class.getName());
         try {
+            Class.forName("com.mysql.jdbc.Driver");
             connection = DriverManager.getConnection(url, user, password);
 
             ResultSet versionResultSet = executeQueryForResult("SELECT VERSION()");

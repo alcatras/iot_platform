@@ -15,12 +15,10 @@ import java.util.logging.Logger;
  */
 public class DeviceMapper extends Mapper<Device> {
 
-    private Logger logger;
+    private Logger logger = Logger.getLogger(this.getClass().getName());
 
-    protected DeviceMapper(DatabaseHelper helper) throws SQLException {
+    public DeviceMapper(DatabaseHelper helper) throws SQLException {
         super(helper, Device.class);
-
-        logger = Logger.getLogger(this.getClass().getCanonicalName());
     }
 
     @Override

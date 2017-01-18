@@ -5,11 +5,19 @@ import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnect
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnectionFactory;
 import com.klimalakamil.channel_broadcaster.server.connection.ServerConnection;
 import com.klimalakamil.channel_broadcaster.server.connection.ServerConnectionFactory;
-import com.klimalakamil.channel_broadcaster.server.dispatcher.builders.MessageBuilder;
-import com.klimalakamil.channel_broadcaster.server.dispatcher.builders.TextMessageBuilder;
+import com.klimalakamil.channel_broadcaster.server.core_service.AuthenticationService;
+import com.klimalakamil.channel_broadcaster.server.database.DatabaseHelper;
+import com.klimalakamil.channel_broadcaster.server.database.mappers.DeviceMapper;
+import com.klimalakamil.channel_broadcaster.server.database.mappers.MapperRegistry;
+import com.klimalakamil.channel_broadcaster.server.database.mappers.SessionMapper;
+import com.klimalakamil.channel_broadcaster.server.database.mappers.UserMapper;
+import com.klimalakamil.channel_broadcaster.server.dispatcher.Dispatcher;
+import com.klimalakamil.channel_broadcaster.server.message.builders.MessageBuilder;
+import com.klimalakamil.channel_broadcaster.server.message.builders.TextMessageBuilder;
 
 import java.io.FileNotFoundException;
 import java.net.InetAddress;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,41 +29,38 @@ public class Server {
     private Logger logger = Logger.getLogger(Server.class.getName());
     private ServerConnection serverConnection;
 
-    private Server() {
+    private Server() throws Exception {
 
-        try {
-//            serverConnection = ServerConnectionFactory.createTLSConnection(
-//                    InetAddress.getByName("localhost"),
-//                    25535,
-//                    10,
-//                    getClass().getResourceAsStream("server.jks"),
-//                    getClass().getResourceAsStream("cacerts.jks"),
-//                    "password".toCharArray()
-//            );
-            serverConnection = ServerConnectionFactory.createConnection(
-                    InetAddress.getByName("localhost"),
-                    25535,
-                    10
-            );
+        // Create database
+        DatabaseHelper databaseHelper = new DatabaseHelper("jdbc:MySql://localhost:3306/java2016", "root", "password");
 
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
-        }
+        // Create mappers
+        UserMapper userMapper = new UserMapper(databaseHelper);
+        DeviceMapper deviceMapper = new DeviceMapper(databaseHelper);
+        SessionMapper sessionMapper = new SessionMapper(databaseHelper);
 
-        serverConnection.registerListener(socket -> {
-            logger.log(Level.INFO, "New client connection from: " + socket.getInetAddress().toString());
-            ClientConnection connection = ClientConnectionFactory.createConnection(socket);
+        // Create connection
+        serverConnection = ServerConnectionFactory.createConnection(
+                InetAddress.getByName("localhost"),
+                25535,
+                10
+        );
 
-            MessageBuilder messageBuilder = new TextMessageBuilder();
-            connection.registerListener(messageBuilder);
+        // Create core services dispatcher
+        Dispatcher<String> controlDispatcher = new Dispatcher<>();
+        serverConnection.registerListener(new ClientConnectionWrapper(controlDispatcher));
 
-            connection.start();
-        });
+        // Create core services
+        AuthenticationService authenticationService = new AuthenticationService();
+        controlDispatcher.registerParser(authenticationService);
 
+
+
+        // Start server socket
         serverConnection.start();
     }
 
-    public static void main(String[] args) throws InterruptedException, FileNotFoundException {
+    public static void main(String[] args) throws Exception {
         //System.setProperty("javax.net.debug", "all");
         Logger logger = Logger.getLogger(Server.class.getName() + "::main");
 

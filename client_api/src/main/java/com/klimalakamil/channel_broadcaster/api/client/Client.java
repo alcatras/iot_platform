@@ -6,6 +6,7 @@ import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnect
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,18 +19,6 @@ public class Client {
     private ClientConnection clientConnection;
 
     public Client(InputStream serverPKS, InputStream clientPKS, char[] password) {
-//        try {
-//            clientConnection = ClientConnectionFactory.createTLSConnection(
-//                    InetAddress.getByName("localhost"),
-//                    25535,
-//                    serverPKS,
-//                    clientPKS,
-//                    password
-//            );
-//        } catch (Exception e) {
-//            logger.log(Level.SEVERE, e.getMessage(), e);
-//        }
-
         try {
             clientConnection = ClientConnectionFactory.createConnection(
                     InetAddress.getByName("localhost"),
@@ -39,10 +28,12 @@ public class Client {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
 
-        clientConnection.registerListener(System.out::println);
+        clientConnection.registerListener((x, chunkSize) -> System.out.println(Arrays.toString(x)));
 
         clientConnection.start();
+    }
 
-        clientConnection.send("dupa".getBytes());
+    public void send(String data) {
+        clientConnection.send(data.getBytes());
     }
 }

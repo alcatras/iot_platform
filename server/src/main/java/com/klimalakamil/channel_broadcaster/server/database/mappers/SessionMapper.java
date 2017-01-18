@@ -18,12 +18,10 @@ import java.util.logging.Logger;
  */
 public class SessionMapper extends Mapper<Session> {
 
-    private Logger logger;
+    private Logger logger = Logger.getLogger(SessionMapper.class.getName());
 
-    SessionMapper(DatabaseHelper helper) throws SQLException {
+    public SessionMapper(DatabaseHelper helper) throws SQLException {
         super(helper, Session.class);
-
-        logger = Logger.getLogger(SessionMapper.class.getName());
     }
 
     @Override

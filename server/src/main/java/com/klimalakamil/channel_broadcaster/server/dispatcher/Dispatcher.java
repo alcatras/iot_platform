@@ -1,26 +1,32 @@
 package com.klimalakamil.channel_broadcaster.server.dispatcher;
 
-import com.klimalakamil.channel_broadcaster.server.dispatcher.message.Message;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by kamil on 18.01.17.
  */
-public class Dispatcher {
+public class Dispatcher<T> {
 
-    private List<AbstractParser> parsers;
+    private List<AbstractParser<T>> parsers;
 
     public Dispatcher() {
         parsers = new ArrayList<>();
     }
 
-    public boolean dispatch(Message message) {
-        for (AbstractParser parser : parsers) {
+    public boolean dispatch(T message) {
+        for (AbstractParser<T> parser : parsers) {
             if (parser.parse(message))
                 return true;
         }
         return false;
+    }
+
+    public void registerParser(AbstractParser<T> parser) {
+        parsers.add(parser);
+    }
+
+    public void unregisterParser(AbstractParser<T> parser) {
+        parsers.remove(parser);
     }
 }
