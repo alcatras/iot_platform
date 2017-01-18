@@ -1,24 +1,58 @@
 package com.klimalakamil.channel_broadcaster.server;
 
 
-import com.klimalakamil.channel_broadcaster.core.ssl.SSLServerSettings;
-import com.klimalakamil.channel_broadcaster.core.ssl.SSLServerThread;
-import com.klimalakamil.channel_broadcaster.server.parser.ServerSettings;
+import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
+import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnectionFactory;
+import com.klimalakamil.channel_broadcaster.server.connection.ServerConnection;
+import com.klimalakamil.channel_broadcaster.server.connection.ServerConnectionFactory;
+import com.klimalakamil.channel_broadcaster.server.dispatcher.builders.MessageBuilder;
+import com.klimalakamil.channel_broadcaster.server.dispatcher.builders.TextMessageBuilder;
 
-import javax.net.ssl.SSLSocket;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.text.ParseException;
+import java.net.InetAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Created by ekamkli on 2016-11-19.
  */
-public class Server extends SSLServerThread {
+public class Server {
 
-    protected Server(SSLServerSettings settings) {
-        super(settings);
+    private Logger logger = Logger.getLogger(Server.class.getName());
+    private ServerConnection serverConnection;
+
+    private Server() {
+
+        try {
+//            serverConnection = ServerConnectionFactory.createTLSConnection(
+//                    InetAddress.getByName("localhost"),
+//                    25535,
+//                    10,
+//                    getClass().getResourceAsStream("server.jks"),
+//                    getClass().getResourceAsStream("cacerts.jks"),
+//                    "password".toCharArray()
+//            );
+            serverConnection = ServerConnectionFactory.createConnection(
+                    InetAddress.getByName("localhost"),
+                    25535,
+                    10
+            );
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+        }
+
+        serverConnection.registerListener(socket -> {
+            logger.log(Level.INFO, "New client connection from: " + socket.getInetAddress().toString());
+            ClientConnection connection = ClientConnectionFactory.createConnection(socket);
+
+            MessageBuilder messageBuilder = new TextMessageBuilder();
+            connection.registerListener(messageBuilder);
+
+            connection.start();
+        });
+
+        serverConnection.start();
     }
 
     public static void main(String[] args) throws InterruptedException, FileNotFoundException {
@@ -27,49 +61,6 @@ public class Server extends SSLServerThread {
 
         logger.log(Level.INFO, "Starting server");
 
-        ServerSettings settings = new ServerSettings();
-        try {
-            settings.parse(Server.class.getClassLoader().getResourceAsStream("server.xml"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-
-        try {
-            if (new File("server.xml").exists()) {
-                settings.parse("server.xml");
-            }
-        } catch (ParseException e) {
-            logger.log(Level.SEVERE, "Invalid server settings file", e);
-        }
-
-        Server server = new Server(settings);
-
-        (new Thread(server)).start();
-    }
-
-    @Override
-    protected void setup() {
-
-    }
-
-    @Override
-    protected void setupFailed(Exception e) {
-
-    }
-
-    @Override
-    protected Runnable acceptConnection(final SSLSocket clientSocket) {
-        return new ClientWorkerThread(clientSocket);
-    }
-
-    @Override
-    protected void acceptConnectionFailed(Exception e) {
-
-    }
-
-    @Override
-    protected void finish() {
-
+        new Server();
     }
 }

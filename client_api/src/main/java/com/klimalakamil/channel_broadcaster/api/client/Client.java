@@ -1,44 +1,48 @@
 package com.klimalakamil.channel_broadcaster.api.client;
 
-import com.klimalakamil.channel_broadcaster.core.authentication.AuthenticationException;
-import com.klimalakamil.channel_broadcaster.core.authentication.DeviceIdentity;
-import com.klimalakamil.channel_broadcaster.core.channel.Channel;
-import com.klimalakamil.channel_broadcaster.core.channel.ChannelException;
-import com.klimalakamil.channel_broadcaster.core.channel.ChannelPrototype;
-import com.klimalakamil.channel_broadcaster.core.ssl.ConnectionListener;
-import com.klimalakamil.channel_broadcaster.core.ssl.SSLClientThread;
+import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
+import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnectionFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by ekamkli on 2016-11-19.
  */
 public class Client {
 
-    private ConnectionListener connectionListener;
-    private SSLClientThread clientThread;
+    private Logger logger = Logger.getLogger(Client.class.getName());
+    private ClientConnection clientConnection;
 
-    public Client(SSLClientSettings settings) {
-        clientThread = new SSLClient(settings);
-        new Thread(clientThread).run();
-    }
+    public Client(InputStream serverPKS, InputStream clientPKS, char[] password) {
+//        try {
+//            clientConnection = ClientConnectionFactory.createTLSConnection(
+//                    InetAddress.getByName("localhost"),
+//                    25535,
+//                    serverPKS,
+//                    clientPKS,
+//                    password
+//            );
+//        } catch (Exception e) {
+//            logger.log(Level.SEVERE, e.getMessage(), e);
+//        }
 
-    public Device authenticate(DeviceIdentity identity, String user, char[] password) throws AuthenticationException {
-
-        return null;
-    }
-
-    public Channel openChannel(ChannelPrototype prototype) throws ChannelException {
-        return null;
-    }
-
-    public void terminate() {
-
-    }
-
-    private class ClientConnectionListener implements ConnectionListener {
-
-        @Override
-        public void onReceive(String message) {
-
+        try {
+            clientConnection = ClientConnectionFactory.createConnection(
+                    InetAddress.getByName("localhost"),
+                    25535
+            );
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
         }
+
+        clientConnection.registerListener(System.out::println);
+
+        clientConnection.start();
+
+        clientConnection.send("dupa".getBytes());
     }
 }

@@ -1,7 +1,9 @@
 package com.klimalakamil.channel_broadcaster.core.connection.client;
 
 import javax.net.ssl.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.security.KeyStore;
@@ -26,17 +28,31 @@ public abstract class ClientConnectionFactory {
         return new BasicClientConnection<Socket>(new Socket(host, port));
     }
 
-    public static ClientConnection createTLSConnection(InetAddress host, int port, File serverPKS, File clientPKS, char[] pwd)
+    public static ClientConnection createTLSConnection(SSLSocket socket) {
+        return new BasicClientConnection<SSLSocket>(socket) {
+            @Override
+            protected void setup() {
+                super.setup();
+                try {
+                    socket.startHandshake();
+                } catch (IOException e) {
+                    logger.log(Level.SEVERE, e.getMessage(), e);
+                }
+            }
+        };
+    }
+
+    public static ClientConnection createTLSConnection(InetAddress host, int port, InputStream serverPKS, InputStream clientPKS, char[] pwd)
             throws Exception {
 
         SecureRandom secureRandom = new SecureRandom();
         secureRandom.nextInt();
 
         KeyStore serverKeyStore = KeyStore.getInstance("JKS");
-        serverKeyStore.load(new FileInputStream(serverPKS), "public".toCharArray());
+        serverKeyStore.load(serverPKS, "public".toCharArray());
 
         KeyStore clientKeyStore = KeyStore.getInstance("JKS");
-        clientKeyStore.load(new FileInputStream(clientPKS), pwd);
+        clientKeyStore.load(clientPKS, pwd);
 
         TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance("SunX509");
         trustManagerFactory.init(serverKeyStore);
@@ -55,6 +71,7 @@ public abstract class ClientConnectionFactory {
         return new BasicClientConnection<SSLSocket>((SSLSocket) sslSocketFactory.createSocket(host, port)) {
             @Override
             protected void setup() {
+                super.setup();
                 try {
                     socket.startHandshake();
                 } catch (IOException e) {
@@ -72,12 +89,20 @@ public abstract class ClientConnectionFactory {
         InputStream inputStream;
         OutputStream outputStream;
 
+        int available = 0;
+
         BasicClientConnection(T socket) {
             this.socket = socket;
         }
 
         @Override
         protected void setup() {
+            try {
+                inputStream = socket.getInputStream();
+                outputStream = socket.getOutputStream();
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, "Unable to get iostreams: " + e.getMessage(), e);
+            }
         }
 
         @Override
@@ -101,9 +126,9 @@ public abstract class ClientConnectionFactory {
         @Override
         protected void loop() {
             try {
-                int available;
-                if ((available = inputStream.available()) > 0) {
+                if ((available += inputStream.available()) > 0) {
                     byte data[] = new byte[available];
+                    available -= inputStream.read(data);
                     eachListener(l -> l.receive(data));
                 }
             } catch (IOException e) {

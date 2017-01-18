@@ -15,6 +15,7 @@ public abstract class Connection<T extends ConnectionListener> {
 
     public Connection() {
         listeners = new ArrayList<>();
+        running = new AtomicBoolean(true);
     }
 
     protected abstract void release();
