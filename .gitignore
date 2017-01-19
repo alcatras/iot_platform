@@ -1,7 +1,9 @@
 .gradle
 *.idea
 gradle
+gradlew
 gradlew.bat
 core/build/
 server/build/
 client_sim/build/
+client_api/build/

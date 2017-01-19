@@ -24,11 +24,11 @@ public abstract class ClientConnectionFactory {
     }
 
     public static ClientConnection createConnection(Socket socket) {
-        return new BasicClientConnection<Socket>(socket);
+        return new BasicClientConnection<>(socket);
     }
 
     public static ClientConnection createConnection(InetAddress host, int port) throws IOException {
-        return new BasicClientConnection<Socket>(new Socket(host, port));
+        return new BasicClientConnection<>(new Socket(host, port));
     }
 
     public static ClientConnection createTLSConnection(SSLSocket socket) {
@@ -99,7 +99,7 @@ public abstract class ClientConnectionFactory {
 
         BasicClientConnection(T socket) {
             this.socket = socket;
-            outputQueue = new ArrayBlockingQueue<byte[]>(10);
+            outputQueue = new ArrayBlockingQueue<>(10);
         }
 
         @Override
