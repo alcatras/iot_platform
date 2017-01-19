@@ -9,6 +9,9 @@ import java.net.Socket;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -87,12 +90,16 @@ public abstract class ClientConnectionFactory {
         T socket;
         InputStream inputStream;
         OutputStream outputStream;
+
         private byte[] inputBuffer = new byte[CHUNK_SIZE];
         private int available = 0;
         private int bufferPosition = 0;
 
+        private BlockingQueue<byte[]> outputQueue;
+
         BasicClientConnection(T socket) {
             this.socket = socket;
+            outputQueue = new ArrayBlockingQueue<byte[]>(10);
         }
 
         @Override
@@ -106,12 +113,14 @@ public abstract class ClientConnectionFactory {
         }
 
         @Override
-        public void send(byte[] data) {
+        public boolean send(byte[] data) {
             try {
-                outputStream.write(data);
-            } catch (IOException e) {
+                outputQueue.offer(data, 500, TimeUnit.MILLISECONDS);
+            } catch (Exception e) {
                 logger.log(Level.WARNING, e.getMessage(), e);
+                return false;
             }
+            return true;
         }
 
         @Override
@@ -147,6 +156,15 @@ public abstract class ClientConnectionFactory {
                         bufferPosition = 0;
                         inputBuffer = new byte[CHUNK_SIZE];
                     }
+                }
+
+                try {
+                    byte[] data;
+                    while ((data = outputQueue.poll(50, TimeUnit.MICROSECONDS)) != null) {
+                        outputStream.write(data);
+                    }
+                } catch (InterruptedException e) {
+                    logger.log(Level.WARNING, e.getMessage(), e);
                 }
 
             } catch (IOException e) {

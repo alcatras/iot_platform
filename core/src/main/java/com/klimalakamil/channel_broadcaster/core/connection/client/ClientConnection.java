@@ -11,5 +11,5 @@ public abstract class ClientConnection extends Connection<ClientConnectionListen
         super();
     }
 
-    public abstract void send(byte[] data);
+    public abstract boolean send(byte[] data);
 }
