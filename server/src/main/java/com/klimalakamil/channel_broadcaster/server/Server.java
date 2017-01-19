@@ -1,23 +1,19 @@
 package com.klimalakamil.channel_broadcaster.server;
 
 
-import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
-import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnectionFactory;
+import com.klimalakamil.channel_broadcaster.core.message.MessageDataWrapper;
 import com.klimalakamil.channel_broadcaster.server.connection.ServerConnection;
 import com.klimalakamil.channel_broadcaster.server.connection.ServerConnectionFactory;
 import com.klimalakamil.channel_broadcaster.server.core_service.AuthenticationService;
 import com.klimalakamil.channel_broadcaster.server.database.DatabaseHelper;
 import com.klimalakamil.channel_broadcaster.server.database.mappers.DeviceMapper;
-import com.klimalakamil.channel_broadcaster.server.database.mappers.MapperRegistry;
 import com.klimalakamil.channel_broadcaster.server.database.mappers.SessionMapper;
 import com.klimalakamil.channel_broadcaster.server.database.mappers.UserMapper;
+import com.klimalakamil.channel_broadcaster.server.database.models.User;
 import com.klimalakamil.channel_broadcaster.server.dispatcher.Dispatcher;
-import com.klimalakamil.channel_broadcaster.server.message.builders.MessageBuilder;
-import com.klimalakamil.channel_broadcaster.server.message.builders.TextMessageBuilder;
 
-import java.io.FileNotFoundException;
 import java.net.InetAddress;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,7 +28,7 @@ public class Server {
     private Server() throws Exception {
 
         // Create database
-        DatabaseHelper databaseHelper = new DatabaseHelper("jdbc:MySql://localhost:3306/java2016", "root", "password");
+        DatabaseHelper databaseHelper = new DatabaseHelper("jdbc:MySql://localhost:3306/java2016", "tester", "password");
 
         // Create mappers
         UserMapper userMapper = new UserMapper(databaseHelper);
@@ -47,7 +43,7 @@ public class Server {
         );
 
         // Create core services dispatcher
-        Dispatcher<String> controlDispatcher = new Dispatcher<>();
+        Dispatcher<MessageDataWrapper> controlDispatcher = new Dispatcher<>();
         serverConnection.registerListener(new ClientConnectionWrapper(controlDispatcher));
 
         // Create core services

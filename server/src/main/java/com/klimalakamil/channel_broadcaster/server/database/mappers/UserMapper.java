@@ -30,13 +30,12 @@ public class UserMapper extends Mapper<User> {
         String encodedDigest = encoder.encodeToString(model.getPasswordDigest());
 
         databaseHelper.executeQuery("INSERT INTO " + getTableName(User.class) +
-                "(id, username, psw_digest, salt, created_at, updated_at) values (" +
-                model.getId() + ", " +
-                model.getUsername() + ", " +
-                encodedSalt + ", " +
-                encodedDigest + ", " +
-                model.getDateCreated() + ", " +
-                model.getDateUpdated() +
+                "(username, salt, password_digest, created_at, updated_at) values ('" +
+                model.getUsername() + "', '" +
+                encodedSalt + "', '" +
+                encodedDigest + "', '" +
+                model.getDateCreated() + "', '" +
+                model.getDateUpdated() + "'" +
                 ");"
         );
     }
@@ -60,7 +59,7 @@ public class UserMapper extends Mapper<User> {
 
         try {
             user.setUsername(resultSet.getString("username"));
-            user.setPasswordDigest(decoder.decode(resultSet.getString("psw_digest")));
+            user.setPasswordDigest(decoder.decode(resultSet.getString("password_digest")));
             user.setSalt(decoder.decode(resultSet.getString("salt")));
         } catch (SQLException e) {
             logger.log(Level.WARNING, "Unable to parse User data: " + e.getMessage(), e);
@@ -71,7 +70,7 @@ public class UserMapper extends Mapper<User> {
 
     @Override
     public User get(int id) {
-        ResultSet resultSet = databaseHelper.executeQueryForResult("SELECT FROM " + getTableName(User.class) +
+        ResultSet resultSet = databaseHelper.executeQueryForResult("SELECT * FROM " + getTableName(User.class) +
                 " WHERE id = " + id + " LIMIT 1");
 
         List<User> users = createModels(resultSet);
@@ -79,8 +78,8 @@ public class UserMapper extends Mapper<User> {
     }
 
     public User get(String username) {
-        ResultSet resultSet = databaseHelper.executeQueryForResult("SELECT FROM " + getTableName(User.class) +
-                " WHERE username = " + username + " LIMIT 1");
+        ResultSet resultSet = databaseHelper.executeQueryForResult("SELECT * FROM " + getTableName(User.class) +
+                " WHERE username = '" + username + "' LIMIT 1");
 
         List<User> users = createModels(resultSet);
         return users.size() > 0 ? users.get(0) : null;

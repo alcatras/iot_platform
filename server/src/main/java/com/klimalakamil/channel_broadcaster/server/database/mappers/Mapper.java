@@ -5,7 +5,9 @@ import com.klimalakamil.channel_broadcaster.server.database.models.Model;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -16,6 +18,7 @@ import java.util.logging.Logger;
  */
 public abstract class Mapper<T extends Model> {
 
+    protected DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     protected DatabaseHelper databaseHelper;
     Logger logger = Logger.getLogger(Mapper.class.getName());
 
@@ -47,8 +50,9 @@ public abstract class Mapper<T extends Model> {
             while (resultSet.next()) {
                 T model = createModel(resultSet);
                 model.setId(resultSet.getInt("id"));
-                model.setDateCreated(LocalDateTime.parse(resultSet.getString("created_at")));
-                model.setDateUpdated(LocalDateTime.parse(resultSet.getString("updated_at")));
+                // TODO: something
+                //model.setDateCreated(LocalDateTime.parse(resultSet.getString("created_at"), formatter));
+                //model.setDateUpdated(LocalDateTime.parse(resultSet.getString("updated_at"), formatter));
 
                 models.add(model);
             }

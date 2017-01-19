@@ -21,7 +21,7 @@ public abstract class Connection<T extends ConnectionListener> {
     protected abstract void release();
 
     public void close() {
-        running = new AtomicBoolean(false);
+        running.set(false);
     }
 
     protected abstract void setup();

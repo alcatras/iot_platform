@@ -23,7 +23,7 @@ public class PasswordHelper {
     }
 
     public static byte[] generateSalt() {
-        byte[] salt = new byte[16];
+        byte[] salt = new byte[8];
         RANDOM.nextBytes(salt);
         return salt;
     }

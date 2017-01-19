@@ -129,13 +129,16 @@ public abstract class ClientConnectionFactory {
         @Override
         protected void loop() {
             try {
+                if(socket.isClosed())
+                    close();
+
                 available = inputStream.available();
                 if(available > 0) {
                     while(bufferPosition + available >= CHUNK_SIZE) {
                         int remaining = CHUNK_SIZE - bufferPosition;
                         available -= inputStream.read(inputBuffer, bufferPosition, remaining);
                         bufferPosition = 0;
-                        eachListener(l -> l.receive(inputBuffer, CHUNK_SIZE));
+                        eachListener(l -> l.receive(inputBuffer, CHUNK_SIZE - 1, inputBuffer[2047] == '\n'));
                         inputBuffer = new byte[CHUNK_SIZE];
                     }
 
@@ -143,17 +146,12 @@ public abstract class ClientConnectionFactory {
 
                     // TODO: something better
                     if(inputBuffer[bufferPosition - 1] == '\n') {
-                        eachListener(l -> l.receive(inputBuffer, bufferPosition));
+                        eachListener(l -> l.receive(inputBuffer, bufferPosition - 1, true));
                         bufferPosition = 0;
                         inputBuffer = new byte[CHUNK_SIZE];
                     }
                 }
 
-                if ((available += inputStream.available()) > 0) {
-                    byte data[] = new byte[available];
-                    available -= inputStream.read(data);
-                    eachListener(l -> l.receive(data, CHUNK_SIZE));
-                }
             } catch (IOException e) {
                 logger.log(Level.WARNING, e.getMessage(), e);
             }

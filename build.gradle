@@ -28,6 +28,10 @@ project(':core') {
 project(':server') {
     apply plugin: 'application'
 
+    dependencies {
+        compile 'mysql:mysql-connector-java:5.1.16'
+    }
+
     mainClassName = 'com.klimalakamil.channel_broadcaster.server.Server'
 
     jar {
@@ -40,10 +44,6 @@ project(':server') {
         from {
             configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
         }
-    }
-
-    dependencies {
-
     }
 
     sourceSets.main.java.srcDirs project(':core').sourceSets.main.java

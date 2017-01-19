@@ -34,9 +34,7 @@ public class DatabaseHelper {
     public ResultSet executeQueryForResult(String sql) {
         try {
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(sql);
-            statement.close();
-            return resultSet;
+            return statement.executeQuery(sql);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
@@ -46,8 +44,7 @@ public class DatabaseHelper {
     public void executeQuery(String sql) {
         try {
             Statement statement = connection.createStatement();
-            statement.executeQuery(sql);
-            statement.close();
+            statement.execute(sql);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }

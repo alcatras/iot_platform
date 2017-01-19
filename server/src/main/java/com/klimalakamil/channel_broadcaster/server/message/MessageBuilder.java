@@ -1,4 +1,4 @@
-package com.klimalakamil.channel_broadcaster.server.message.builders;
+package com.klimalakamil.channel_broadcaster.server.message;
 
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnectionListener;
 import com.klimalakamil.channel_broadcaster.server.dispatcher.Dispatcher;

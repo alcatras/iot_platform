@@ -2,6 +2,7 @@ package com.klimalakamil.channel_broadcaster.api.client;
 
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnectionFactory;
+import com.klimalakamil.channel_broadcaster.core.message.Message;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,12 +29,12 @@ public class Client {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
 
-        clientConnection.registerListener((x, chunkSize) -> System.out.println(Arrays.toString(x)));
+        clientConnection.registerListener((x, chunkSize, end) -> System.out.println(Arrays.toString(x)));
 
         clientConnection.start();
     }
 
-    public void send(String data) {
-        clientConnection.send(data.getBytes());
+    public void send(Message message) {
+        clientConnection.send(message.serialize());
     }
 }

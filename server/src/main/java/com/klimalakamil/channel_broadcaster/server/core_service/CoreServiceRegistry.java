@@ -19,7 +19,10 @@ public final class CoreServiceRegistry {
     }
 
     public static CoreServiceRegistry getInstance() {
-        return instance == null ? new CoreServiceRegistry() : instance;
+        if(instance == null) {
+            instance = new CoreServiceRegistry();
+        }
+        return instance;
     }
 
     public void register(Class clazz, CoreService service) {
