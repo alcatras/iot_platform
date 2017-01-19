@@ -1,8 +1,5 @@
 package com.klimalakamil.channel_broadcaster.server.core_service;
 
-import com.klimalakamil.channel_broadcaster.server.database.mappers.Mapper;
-import com.klimalakamil.channel_broadcaster.server.database.mappers.MapperRegistry;
-
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -19,7 +16,7 @@ public final class CoreServiceRegistry {
     }
 
     public static CoreServiceRegistry getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new CoreServiceRegistry();
         }
         return instance;

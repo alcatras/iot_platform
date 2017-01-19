@@ -8,7 +8,6 @@ import com.klimalakamil.channel_broadcaster.server.database.mappers.MapperRegist
 import com.klimalakamil.channel_broadcaster.server.database.mappers.UserMapper;
 import com.klimalakamil.channel_broadcaster.server.database.models.User;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Consumer;
@@ -44,7 +43,7 @@ public class AuthenticationService extends CoreService {
     public boolean parse(MessageDataWrapper message) {
 
         Consumer<MessageDataWrapper> consumer = actions.get(message.tag);
-        if(consumer != null) {
+        if (consumer != null) {
             consumer.accept(message);
             return true;
         }

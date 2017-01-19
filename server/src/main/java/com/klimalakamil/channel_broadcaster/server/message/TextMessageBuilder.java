@@ -1,9 +1,7 @@
 package com.klimalakamil.channel_broadcaster.server.message;
 
 import com.google.gson.Gson;
-import com.klimalakamil.channel_broadcaster.core.message.MessageData;
 import com.klimalakamil.channel_broadcaster.core.message.MessageDataWrapper;
-import com.klimalakamil.channel_broadcaster.core.message.auth.LoginMessageData;
 import com.klimalakamil.channel_broadcaster.server.dispatcher.Dispatcher;
 
 import java.io.UnsupportedEncodingException;

@@ -24,11 +24,11 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
 
-        while(true) {
+        while (true) {
             String line = scanner.nextLine();
             String[] parts = line.split(" ");
 
-            if(parts[0].equals("login")) {
+            if (parts[0].equals("login")) {
                 client.send(
                         new TextMessage(
                                 new MessageDataWrapper(LoginMessageData.class.getCanonicalName(),

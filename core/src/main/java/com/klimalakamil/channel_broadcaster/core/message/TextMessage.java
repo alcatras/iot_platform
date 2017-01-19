@@ -1,8 +1,6 @@
 package com.klimalakamil.channel_broadcaster.core.message;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 /**
  * Created by kamil on 18.01.17.

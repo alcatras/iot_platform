@@ -82,14 +82,11 @@ public abstract class ClientConnectionFactory {
     }
 
     private static class BasicClientConnection<T extends Socket> extends ClientConnection {
+        private static final int CHUNK_SIZE = 2048;
         Logger logger = Logger.getLogger(BasicClientConnection.class.getName());
-
         T socket;
-
         InputStream inputStream;
         OutputStream outputStream;
-
-        private static final int CHUNK_SIZE = 2048;
         private byte[] inputBuffer = new byte[CHUNK_SIZE];
         private int available = 0;
         private int bufferPosition = 0;
@@ -129,12 +126,12 @@ public abstract class ClientConnectionFactory {
         @Override
         protected void loop() {
             try {
-                if(socket.isClosed())
+                if (socket.isClosed())
                     close();
 
                 available = inputStream.available();
-                if(available > 0) {
-                    while(bufferPosition + available >= CHUNK_SIZE) {
+                if (available > 0) {
+                    while (bufferPosition + available >= CHUNK_SIZE) {
                         int remaining = CHUNK_SIZE - bufferPosition;
                         available -= inputStream.read(inputBuffer, bufferPosition, remaining);
                         bufferPosition = 0;
@@ -145,7 +142,7 @@ public abstract class ClientConnectionFactory {
                     bufferPosition += inputStream.read(inputBuffer, bufferPosition, available);
 
                     // TODO: something better
-                    if(inputBuffer[bufferPosition - 1] == '\n') {
+                    if (inputBuffer[bufferPosition - 1] == '\n') {
                         eachListener(l -> l.receive(inputBuffer, bufferPosition - 1, true));
                         bufferPosition = 0;
                         inputBuffer = new byte[CHUNK_SIZE];

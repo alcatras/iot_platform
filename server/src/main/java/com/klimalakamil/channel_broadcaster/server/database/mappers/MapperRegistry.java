@@ -16,7 +16,7 @@ public final class MapperRegistry {
     }
 
     public static MapperRegistry getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new MapperRegistry();
         }
         return instance;

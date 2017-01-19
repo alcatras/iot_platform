@@ -10,7 +10,8 @@ public class MessageDataWrapper {
     public String tag;
     public byte[] data;
 
-    public MessageDataWrapper() { }
+    public MessageDataWrapper() {
+    }
 
     public MessageDataWrapper(String tag, MessageData data) {
         this.tag = tag;

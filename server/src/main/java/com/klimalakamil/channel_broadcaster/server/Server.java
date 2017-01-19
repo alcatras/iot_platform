@@ -9,11 +9,9 @@ import com.klimalakamil.channel_broadcaster.server.database.DatabaseHelper;
 import com.klimalakamil.channel_broadcaster.server.database.mappers.DeviceMapper;
 import com.klimalakamil.channel_broadcaster.server.database.mappers.SessionMapper;
 import com.klimalakamil.channel_broadcaster.server.database.mappers.UserMapper;
-import com.klimalakamil.channel_broadcaster.server.database.models.User;
 import com.klimalakamil.channel_broadcaster.server.dispatcher.Dispatcher;
 
 import java.net.InetAddress;
-import java.sql.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,7 +47,6 @@ public class Server {
         // Create core services
         AuthenticationService authenticationService = new AuthenticationService();
         controlDispatcher.registerParser(authenticationService);
-
 
 
         // Start server socket
