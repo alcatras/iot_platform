@@ -1,4 +1,4 @@
-package com.klimalakamil.channel_broadcaster.server.dispatcher;
+package com.klimalakamil.channel_broadcaster.core.dispatcher;
 
 /**
  * Created by kamil on 18.01.17.

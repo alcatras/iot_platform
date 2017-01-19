@@ -2,14 +2,18 @@ package com.klimalakamil.channel_broadcaster.api.client;
 
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnectionFactory;
-import message.Parcel;
-import message.messagedata.GenericStatusMessage;
+import com.klimalakamil.channel_broadcaster.core.dispatcher.Dispatcher;
+import com.klimalakamil.channel_broadcaster.core.dispatcher.message.ExpectedParcel;
+import message.AddressedParcel;
+import message.MessageData;
+import message.processors.MessageBuilder;
+import message.processors.TextMessageBuilder;
 import message.serializer.JsonSerializer;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,7 +23,11 @@ import java.util.logging.Logger;
 public class Client {
 
     private Logger logger = Logger.getLogger(Client.class.getName());
+
     private ClientConnection clientConnection;
+    private Dispatcher<AddressedParcel> dispatcher;
+    private ExpectedParcel expectedParcel;
+    private JsonSerializer serializer;
 
     public Client(InputStream serverPKS, InputStream clientPKS, char[] password) {
         try {
@@ -31,23 +39,31 @@ public class Client {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
 
-        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-        JsonSerializer serializer = new JsonSerializer();
+        dispatcher = new Dispatcher<>();
+        MessageBuilder<AddressedParcel> messageBuilder = new TextMessageBuilder(clientConnection, dispatcher);
+        clientConnection.registerListener(messageBuilder);
 
-        clientConnection.registerListener((x, chunkSize, end) -> {
-            byteOutputStream.write(x, 0, chunkSize);
+        expectedParcel = new ExpectedParcel(clientConnection);
+        dispatcher.registerParser(expectedParcel);
 
-            if (end) {
-                Parcel parcel = serializer.deserialize(byteOutputStream.toByteArray());
-                System.out.println(parcel.getMessageData(GenericStatusMessage.class));
-                byteOutputStream.reset();
-            }
-        });
+        serializer = new JsonSerializer();
 
         clientConnection.start();
     }
 
-    public void send(byte[] bytes) {
-        clientConnection.send(bytes);
+    public AddressedParcel expect(Class<? extends MessageData> clazz, long timeout, TimeUnit timeUnit) {
+        return expectedParcel.expect(clazz, timeout, timeUnit);
+    }
+
+    public AddressedParcel expectReturn(Class<? extends MessageData> clazz, long timeout, TimeUnit timeUnit, MessageData messageData) {
+        return expectedParcel.expectReturn(clazz, timeout, timeUnit, serializer.serialize(messageData));
+    }
+
+    public void send(MessageData messageData) {
+        clientConnection.send(serializer.serialize(messageData));
+    }
+
+    public void close() {
+        clientConnection.close();
     }
 }

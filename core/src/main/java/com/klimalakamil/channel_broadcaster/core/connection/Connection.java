@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 public abstract class Connection<T extends ConnectionListener> {
 
     private List<T> listeners;
+
     private AtomicBoolean running;
 
     public Connection() {
@@ -39,14 +40,20 @@ public abstract class Connection<T extends ConnectionListener> {
     }
 
     public void registerListener(T listener) {
-        listeners.add(listener);
+        synchronized (this) {
+            listeners.add(listener);
+        }
     }
 
     public void unregisterListener(T listener) {
-        listeners.remove(listener);
+        synchronized (this) {
+            listeners.remove(listener);
+        }
     }
 
     protected void eachListener(Consumer<T> consumer) {
-        listeners.forEach(consumer);
+        synchronized (this) {
+            listeners.forEach(consumer);
+        }
     }
 }

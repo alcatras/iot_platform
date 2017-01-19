@@ -1,7 +1,7 @@
-package com.klimalakamil.channel_broadcaster.server.message;
+package message.processors;
 
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnectionListener;
-import com.klimalakamil.channel_broadcaster.server.dispatcher.Dispatcher;
+import com.klimalakamil.channel_broadcaster.core.dispatcher.Dispatcher;
 
 /**
  * Created by kamil on 18.01.17.

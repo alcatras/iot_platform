@@ -1,7 +1,8 @@
-package com.klimalakamil.channel_broadcaster.server.message;
+package message.processors;
 
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
-import com.klimalakamil.channel_broadcaster.server.dispatcher.Dispatcher;
+import com.klimalakamil.channel_broadcaster.core.dispatcher.Dispatcher;
+import message.AddressedParcel;
 import message.Parcel;
 import message.serializer.JsonSerializer;
 

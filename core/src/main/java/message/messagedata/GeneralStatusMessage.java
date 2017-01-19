@@ -5,12 +5,12 @@ import message.MessageData;
 /**
  * Created by kamil on 19.01.17.
  */
-public class GenericStatusMessage implements MessageData {
+public class GeneralStatusMessage implements MessageData {
 
     private int statusId;
     private String status;
 
-    public GenericStatusMessage(int statusId, String status) {
+    public GeneralStatusMessage(int statusId, String status) {
         this.statusId = statusId;
         this.status = status;
     }

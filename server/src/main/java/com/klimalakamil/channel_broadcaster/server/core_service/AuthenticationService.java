@@ -4,8 +4,8 @@ import com.klimalakamil.channel_broadcaster.core.authentication.PasswordHelper;
 import com.klimalakamil.channel_broadcaster.server.database.mappers.MapperRegistry;
 import com.klimalakamil.channel_broadcaster.server.database.mappers.UserMapper;
 import com.klimalakamil.channel_broadcaster.server.database.models.User;
-import com.klimalakamil.channel_broadcaster.server.message.AddressedParcel;
-import message.messagedata.GenericStatusMessage;
+import message.AddressedParcel;
+import message.messagedata.GeneralStatusMessage;
 import message.messagedata.auth.LoginMessage;
 
 import java.util.Map;
@@ -34,7 +34,7 @@ public class AuthenticationService extends CoreService {
             if (user != null && PasswordHelper.checkPassword(data.getPassword().toCharArray(), user.getSalt(), user.getPasswordDigest())) {
                 status = "OK";
             }
-            addressedParcel.sendBack(new GenericStatusMessage(status.equals("OK") ? 0 : 1, status));
+            addressedParcel.sendBack(new GeneralStatusMessage(status.equals("OK") ? 0 : 1, status));
         });
     }
 

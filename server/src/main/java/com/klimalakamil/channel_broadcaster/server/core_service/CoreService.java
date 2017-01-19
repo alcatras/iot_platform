@@ -1,7 +1,7 @@
 package com.klimalakamil.channel_broadcaster.server.core_service;
 
-import com.klimalakamil.channel_broadcaster.server.dispatcher.AbstractParser;
-import com.klimalakamil.channel_broadcaster.server.message.AddressedParcel;
+import com.klimalakamil.channel_broadcaster.core.dispatcher.AbstractParser;
+import message.AddressedParcel;
 
 /**
  * Created by kamil on 18.01.17.

@@ -1,8 +1,6 @@
-package com.klimalakamil.channel_broadcaster.server.message;
+package message;
 
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
-import message.MessageData;
-import message.Parcel;
 import message.serializer.JsonSerializer;
 
 /**
@@ -26,6 +24,10 @@ public class AddressedParcel {
 
     public void setParcel(Parcel parcel) {
         this.parcel = parcel;
+    }
+
+    public <T> T getMessageData(Class<T> clazz) {
+        return parcel.getMessageData(clazz);
     }
 
     public ClientConnection getConnection() {

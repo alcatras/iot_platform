@@ -1,4 +1,4 @@
-package com.klimalakamil.channel_broadcaster.server.dispatcher;
+package com.klimalakamil.channel_broadcaster.core.dispatcher;
 
 import java.util.ArrayList;
 import java.util.List;
