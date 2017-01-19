@@ -1,11 +1,12 @@
 package com.klimalakamil.channel_broadcaster.api.client;
 
-import com.google.gson.Gson;
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnectionFactory;
-import com.klimalakamil.channel_broadcaster.core.message.MessageDataWrapper;
-import com.klimalakamil.channel_broadcaster.core.message.auth.LoginResponseMsgData;
+import message.Parcel;
+import message.messagedata.GenericStatusMessage;
+import message.serializer.JsonSerializer;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -30,10 +31,17 @@ public class Client {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
 
-        clientConnection.registerListener((conn, x, chunkSize, end) -> {
-            Gson gson = new Gson();
-            MessageDataWrapper wrapper = gson.fromJson(new String(x, 0, chunkSize), MessageDataWrapper.class);
-            System.out.println(wrapper.getContent(LoginResponseMsgData.class).status);
+        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+        JsonSerializer serializer = new JsonSerializer();
+
+        clientConnection.registerListener((x, chunkSize, end) -> {
+            byteOutputStream.write(x, 0, chunkSize);
+
+            if (end) {
+                Parcel parcel = serializer.deserialize(byteOutputStream.toByteArray());
+                System.out.println(parcel.getMessageData(GenericStatusMessage.class));
+                byteOutputStream.reset();
+            }
         });
 
         clientConnection.start();

@@ -1,44 +1,41 @@
 package com.klimalakamil.channel_broadcaster.server.message;
 
-import com.google.gson.Gson;
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
-import com.klimalakamil.channel_broadcaster.core.message.MessageDataWrapper;
 import com.klimalakamil.channel_broadcaster.server.dispatcher.Dispatcher;
+import message.Parcel;
+import message.serializer.JsonSerializer;
 
-import java.io.UnsupportedEncodingException;
-import java.util.logging.Level;
+import java.io.ByteArrayOutputStream;
 import java.util.logging.Logger;
 
 /**
  * Created by kamil on 18.01.17.
  */
-public class TextMessageBuilder extends MessageBuilder<MessageContext> {
+public class TextMessageBuilder extends MessageBuilder<AddressedParcel> {
 
     private Logger logger = Logger.getLogger(TextMessageBuilder.class.getName());
-    private StringBuilder stringBuilder;
+    private ByteArrayOutputStream byteBuffer;
 
-    private Gson gson;
+    private ClientConnection clientConnection;
+    private JsonSerializer serializer;
 
-    public TextMessageBuilder(Dispatcher<MessageContext> dispatcher) {
+    public TextMessageBuilder(ClientConnection connection, Dispatcher<AddressedParcel> dispatcher) {
         super(dispatcher);
-        stringBuilder = new StringBuilder();
-        gson = new Gson();
+        this.clientConnection = connection;
+
+        byteBuffer = new ByteArrayOutputStream(2048);
+        serializer = new JsonSerializer();
     }
 
     @Override
-    public void receive(ClientConnection connection, byte[] data, int length, boolean end) {
-        try {
-            stringBuilder.append(new String(data, 0, length, "US-ASCII"));
+    public void receive(byte[] data, int length, boolean end) {
+        byteBuffer.write(data, 0, length);
 
-            if (end) {
-                MessageDataWrapper wrapper = gson.fromJson(stringBuilder.toString(), MessageDataWrapper.class);
-                MessageContext ctxt = new MessageContext(wrapper, connection);
-
-                dispatcher.dispatch(ctxt);
-                stringBuilder = new StringBuilder();
-            }
-        } catch (UnsupportedEncodingException e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
+        if (end) {
+            Parcel parcel = serializer.deserialize(byteBuffer.toByteArray());
+            AddressedParcel addressedParcel = new AddressedParcel(parcel, clientConnection, serializer);
+            dispatcher.dispatch(addressedParcel);
+            byteBuffer.reset();
         }
     }
 }

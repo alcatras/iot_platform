@@ -9,7 +9,7 @@ import com.klimalakamil.channel_broadcaster.server.database.mappers.DeviceMapper
 import com.klimalakamil.channel_broadcaster.server.database.mappers.SessionMapper;
 import com.klimalakamil.channel_broadcaster.server.database.mappers.UserMapper;
 import com.klimalakamil.channel_broadcaster.server.dispatcher.Dispatcher;
-import com.klimalakamil.channel_broadcaster.server.message.MessageContext;
+import com.klimalakamil.channel_broadcaster.server.message.AddressedParcel;
 
 import java.net.InetAddress;
 import java.util.logging.Level;
@@ -41,7 +41,7 @@ public class Server {
         );
 
         // Create core services dispatcher
-        Dispatcher<MessageContext> controlDispatcher = new Dispatcher<>();
+        Dispatcher<AddressedParcel> controlDispatcher = new Dispatcher<>();
         serverConnection.registerListener(new ClientConnectionWrapper(controlDispatcher));
 
         // Create core services

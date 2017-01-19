@@ -4,8 +4,8 @@ import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnect
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnectionFactory;
 import com.klimalakamil.channel_broadcaster.server.connection.ServerConnectionListener;
 import com.klimalakamil.channel_broadcaster.server.dispatcher.Dispatcher;
+import com.klimalakamil.channel_broadcaster.server.message.AddressedParcel;
 import com.klimalakamil.channel_broadcaster.server.message.MessageBuilder;
-import com.klimalakamil.channel_broadcaster.server.message.MessageContext;
 import com.klimalakamil.channel_broadcaster.server.message.TextMessageBuilder;
 
 import java.net.Socket;
@@ -18,9 +18,9 @@ import java.util.logging.Logger;
 public class ClientConnectionWrapper implements ServerConnectionListener {
 
     private Logger logger = Logger.getLogger(ClientConnectionWrapper.class.getName());
-    private Dispatcher<MessageContext> controlDispatcher;
+    private Dispatcher<AddressedParcel> controlDispatcher;
 
-    public ClientConnectionWrapper(Dispatcher<MessageContext> controlDispatcher) {
+    public ClientConnectionWrapper(Dispatcher<AddressedParcel> controlDispatcher) {
         this.controlDispatcher = controlDispatcher;
     }
 
@@ -29,7 +29,7 @@ public class ClientConnectionWrapper implements ServerConnectionListener {
         logger.log(Level.INFO, "New client connection from: " + socket.getInetAddress().toString());
         ClientConnection connection = ClientConnectionFactory.createConnection(socket);
 
-        MessageBuilder messageBuilder = new TextMessageBuilder(controlDispatcher);
+        MessageBuilder messageBuilder = new TextMessageBuilder(connection, controlDispatcher);
         connection.registerListener(messageBuilder);
 
         connection.start();

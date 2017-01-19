@@ -1,8 +1,8 @@
 package com.klimalakamil.channel_broadcaster.client_sim;
 
 import com.klimalakamil.channel_broadcaster.api.client.Client;
-import com.klimalakamil.channel_broadcaster.core.message.TextMessageBuilder;
-import com.klimalakamil.channel_broadcaster.core.message.auth.LoginMsgData;
+import message.messagedata.auth.LoginMessage;
+import message.serializer.JsonSerializer;
 import org.apache.commons.cli.ParseException;
 
 import java.net.UnknownHostException;
@@ -23,17 +23,14 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
 
+        JsonSerializer serializer = new JsonSerializer();
+
         while (true) {
             String line = scanner.nextLine();
             String[] parts = line.split(" ");
 
             if (parts[0].equals("login")) {
-                byte[] msg = new TextMessageBuilder()
-                        .setTag(LoginMsgData.class.getCanonicalName())
-                        .setMessageData(new LoginMsgData("test", "password", "device0"))
-                        .getSerialized();
-
-                client.send(msg);
+                client.send(serializer.serialize(new LoginMessage("test", "password", "device")));
             }
         }
     }
