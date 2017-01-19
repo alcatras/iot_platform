@@ -1,13 +1,14 @@
 package com.klimalakamil.channel_broadcaster.api.client;
 
+import com.google.gson.Gson;
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnectionFactory;
-import com.klimalakamil.channel_broadcaster.core.message.Message;
+import com.klimalakamil.channel_broadcaster.core.message.MessageDataWrapper;
+import com.klimalakamil.channel_broadcaster.core.message.auth.LoginResponseMsgData;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,12 +30,16 @@ public class Client {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
 
-        clientConnection.registerListener((x, chunkSize, end) -> System.out.println(Arrays.toString(x)));
+        clientConnection.registerListener((conn, x, chunkSize, end) -> {
+            Gson gson = new Gson();
+            MessageDataWrapper wrapper = gson.fromJson(new String(x, 0, chunkSize), MessageDataWrapper.class);
+            System.out.println(wrapper.getContent(LoginResponseMsgData.class).status);
+        });
 
         clientConnection.start();
     }
 
-    public void send(Message message) {
-        clientConnection.send(message.serialize());
+    public void send(byte[] bytes) {
+        clientConnection.send(bytes);
     }
 }

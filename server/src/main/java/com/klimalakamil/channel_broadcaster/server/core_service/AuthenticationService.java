@@ -1,12 +1,13 @@
 package com.klimalakamil.channel_broadcaster.server.core_service;
 
-import com.google.gson.Gson;
 import com.klimalakamil.channel_broadcaster.core.authentication.PasswordHelper;
-import com.klimalakamil.channel_broadcaster.core.message.MessageDataWrapper;
-import com.klimalakamil.channel_broadcaster.core.message.auth.LoginMessageData;
+import com.klimalakamil.channel_broadcaster.core.message.TextMessageBuilder;
+import com.klimalakamil.channel_broadcaster.core.message.auth.LoginMsgData;
+import com.klimalakamil.channel_broadcaster.core.message.auth.LoginResponseMsgData;
 import com.klimalakamil.channel_broadcaster.server.database.mappers.MapperRegistry;
 import com.klimalakamil.channel_broadcaster.server.database.mappers.UserMapper;
 import com.klimalakamil.channel_broadcaster.server.database.models.User;
+import com.klimalakamil.channel_broadcaster.server.message.MessageContext;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -18,33 +19,37 @@ import java.util.function.Consumer;
 public class AuthenticationService extends CoreService {
 
     private UserMapper userMapper = (UserMapper) MapperRegistry.getInstance().forClass(User.class);
-    private Map<String, Consumer<MessageDataWrapper>> actions;
+    private Map<String, Consumer<MessageContext>> actions;
 
     public AuthenticationService() {
         super(AuthenticationService.class);
 
         actions = new TreeMap<>();
-        Gson gson = new Gson();
 
-        actions.put(LoginMessageData.class.getCanonicalName(), wrapper -> {
-            LoginMessageData data = gson.fromJson(new String(wrapper.data), LoginMessageData.class);
-
+        actions.put(LoginMsgData.class.getCanonicalName(), ctxt -> {
+            LoginMsgData data = ctxt.wrapper.getContent(LoginMsgData.class);
             User user = userMapper.get(data.login);
 
-            System.out.println(user.getUsername());
-            System.out.println(PasswordHelper.checkPassword(data.password.toCharArray(), user.getSalt(), user.getPasswordDigest()));
+            String status = "Invalid username or password";
 
-            System.out.println(data.password);
-            System.out.println(data.deviceName);
+            if (user != null && PasswordHelper.checkPassword(data.password.toCharArray(), user.getSalt(), user.getPasswordDigest())) {
+                status = "OK";
+
+            }
+
+            ctxt.connection.send(new TextMessageBuilder()
+                    .setTag(LoginResponseMsgData.class.getCanonicalName())
+                    .setMessageData(new LoginResponseMsgData(status))
+                    .getSerialized());
         });
     }
 
     @Override
-    public boolean parse(MessageDataWrapper message) {
+    public boolean parse(MessageContext ctxt) {
 
-        Consumer<MessageDataWrapper> consumer = actions.get(message.tag);
+        Consumer<MessageContext> consumer = actions.get(ctxt.wrapper.tag);
         if (consumer != null) {
-            consumer.accept(message);
+            consumer.accept(ctxt);
             return true;
         }
         return false;

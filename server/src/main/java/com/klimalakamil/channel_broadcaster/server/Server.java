@@ -1,7 +1,6 @@
 package com.klimalakamil.channel_broadcaster.server;
 
 
-import com.klimalakamil.channel_broadcaster.core.message.MessageDataWrapper;
 import com.klimalakamil.channel_broadcaster.server.connection.ServerConnection;
 import com.klimalakamil.channel_broadcaster.server.connection.ServerConnectionFactory;
 import com.klimalakamil.channel_broadcaster.server.core_service.AuthenticationService;
@@ -10,6 +9,7 @@ import com.klimalakamil.channel_broadcaster.server.database.mappers.DeviceMapper
 import com.klimalakamil.channel_broadcaster.server.database.mappers.SessionMapper;
 import com.klimalakamil.channel_broadcaster.server.database.mappers.UserMapper;
 import com.klimalakamil.channel_broadcaster.server.dispatcher.Dispatcher;
+import com.klimalakamil.channel_broadcaster.server.message.MessageContext;
 
 import java.net.InetAddress;
 import java.util.logging.Level;
@@ -41,7 +41,7 @@ public class Server {
         );
 
         // Create core services dispatcher
-        Dispatcher<MessageDataWrapper> controlDispatcher = new Dispatcher<>();
+        Dispatcher<MessageContext> controlDispatcher = new Dispatcher<>();
         serverConnection.registerListener(new ClientConnectionWrapper(controlDispatcher));
 
         // Create core services

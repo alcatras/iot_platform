@@ -1,9 +1,8 @@
 package com.klimalakamil.channel_broadcaster.client_sim;
 
 import com.klimalakamil.channel_broadcaster.api.client.Client;
-import com.klimalakamil.channel_broadcaster.core.message.MessageDataWrapper;
-import com.klimalakamil.channel_broadcaster.core.message.TextMessage;
-import com.klimalakamil.channel_broadcaster.core.message.auth.LoginMessageData;
+import com.klimalakamil.channel_broadcaster.core.message.TextMessageBuilder;
+import com.klimalakamil.channel_broadcaster.core.message.auth.LoginMsgData;
 import org.apache.commons.cli.ParseException;
 
 import java.net.UnknownHostException;
@@ -29,10 +28,12 @@ public class Main {
             String[] parts = line.split(" ");
 
             if (parts[0].equals("login")) {
-                client.send(
-                        new TextMessage(
-                                new MessageDataWrapper(LoginMessageData.class.getCanonicalName(),
-                                        new LoginMessageData("test", "password", "device0"))));
+                byte[] msg = new TextMessageBuilder()
+                        .setTag(LoginMsgData.class.getCanonicalName())
+                        .setMessageData(new LoginMsgData("test", "password", "device0"))
+                        .getSerialized();
+
+                client.send(msg);
             }
         }
     }

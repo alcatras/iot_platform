@@ -7,5 +7,5 @@ import com.klimalakamil.channel_broadcaster.core.connection.ConnectionListener;
  */
 public interface ClientConnectionListener extends ConnectionListener {
 
-    void receive(byte[] data, int chunkSize, boolean end);
+    void receive(ClientConnection connection, byte[] data, int length, boolean end);
 }
