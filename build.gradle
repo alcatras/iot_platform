@@ -1,6 +1,6 @@
 allprojects {
     apply plugin: 'idea'
-    group = 'com.klimalakamil.channel_broadcaster'
+    group = 'com.klimalakamil.iot_platform'
     version = '0.1alpha'
 }
 
@@ -32,7 +32,7 @@ project(':server') {
         compile 'mysql:mysql-connector-java:5.1.16'
     }
 
-    mainClassName = 'com.klimalakamil.channel_broadcaster.server.Server'
+    mainClassName = 'com.klimalakamil.iot_platform.server.Server'
 
     jar {
         manifest {
@@ -62,7 +62,7 @@ project(':client_api') {
 project(':client_sim') {
     apply plugin: 'application'
 
-    mainClassName = 'com.klimalakamil.channel_broadcaster.client_sim.Main'
+    mainClassName = 'com.klimalakamil.iot_platform.client_sim.Main'
 
     jar {
         manifest {
