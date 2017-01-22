@@ -1,8 +1,8 @@
-package message.serializer;
+package com.klimalakamil.channel_broadcaster.core.message.serializer;
 
 import com.google.gson.Gson;
-import message.MessageData;
-import message.Parcel;
+import com.klimalakamil.channel_broadcaster.core.message.MessageData;
+import com.klimalakamil.channel_broadcaster.core.message.Parcel;
 
 /**
  * Created by kamil on 19.01.17.

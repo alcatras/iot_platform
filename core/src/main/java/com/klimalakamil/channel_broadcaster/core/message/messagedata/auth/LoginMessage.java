@@ -1,6 +1,6 @@
-package message.messagedata.auth;
+package com.klimalakamil.channel_broadcaster.core.message.messagedata.auth;
 
-import message.MessageData;
+import com.klimalakamil.channel_broadcaster.core.message.MessageData;
 
 /**
  * Created by kamil on 19.01.17.

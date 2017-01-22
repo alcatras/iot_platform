@@ -1,8 +1,9 @@
 package com.klimalakamil.channel_broadcaster.server.core_service;
 
+import com.klimalakamil.channel_broadcaster.core.message.messagedata.NotAuthorizedMessage;
+import com.klimalakamil.channel_broadcaster.core.message.messagedata.time.TimeRequest;
+import com.klimalakamil.channel_broadcaster.core.message.messagedata.time.TimeResponse;
 import com.klimalakamil.channel_broadcaster.server.database.mappers.Mapper;
-import message.messagedata.time.TimeRequest;
-import message.messagedata.time.TimeResponse;
 
 import java.time.LocalDateTime;
 
@@ -19,7 +20,7 @@ public class RoughTimeService extends CoreService {
             if (authenticationService.isActive(addressedParcel.getConnection())) {
                 addressedParcel.sendBack(new TimeResponse(LocalDateTime.now().format(Mapper.formatter)));
             } else {
-                addressedParcel.sendBack(new TimeResponse("NOT AUTHORIZED"));
+                addressedParcel.sendBack(new NotAuthorizedMessage());
             }
         });
     }

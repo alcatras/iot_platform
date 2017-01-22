@@ -1,8 +1,8 @@
 package com.klimalakamil.channel_broadcaster.server.core_service;
 
 import com.klimalakamil.channel_broadcaster.core.dispatcher.AbstractParser;
-import message.AddressedParcel;
-import message.MessageData;
+import com.klimalakamil.channel_broadcaster.core.message.AddressedParcel;
+import com.klimalakamil.channel_broadcaster.core.message.MessageData;
 
 import java.util.Map;
 import java.util.TreeMap;

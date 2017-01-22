@@ -1,4 +1,4 @@
-package message.serializer;
+package com.klimalakamil.channel_broadcaster.core.message.serializer;
 
 
 /**

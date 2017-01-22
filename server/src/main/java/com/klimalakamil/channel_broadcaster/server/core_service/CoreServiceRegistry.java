@@ -6,6 +6,7 @@ import java.util.TreeMap;
 /**
  * Created by kamil on 18.01.17.
  */
+// TODO: add synchronization
 public final class CoreServiceRegistry {
 
     private static CoreServiceRegistry instance;
@@ -26,7 +27,7 @@ public final class CoreServiceRegistry {
         services.put(clazz.getCanonicalName(), service);
     }
 
-    public CoreService get(Class clazz) {
+    public CoreService get(Class<? extends CoreService> clazz) {
         return services.get(clazz.getCanonicalName());
     }
 }

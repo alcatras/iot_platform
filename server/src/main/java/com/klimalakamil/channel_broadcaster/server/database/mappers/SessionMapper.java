@@ -68,6 +68,7 @@ public class SessionMapper extends Mapper<Session> {
             session.setDevice(deviceMapper.get(resultSet.getInt("device_id")));
 
             session.setAddress(InetAddress.getByName(resultSet.getString("ip")));
+            session.setControlPort(resultSet.getInt("control_port"));
             session.setValidTo(LocalDateTime.parse(resultSet.getString("valid_before"), formatter));
 
         } catch (SQLException | UnknownHostException e) {

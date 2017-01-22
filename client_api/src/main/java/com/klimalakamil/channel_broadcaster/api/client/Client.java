@@ -3,17 +3,14 @@ package com.klimalakamil.channel_broadcaster.api.client;
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnectionFactory;
 import com.klimalakamil.channel_broadcaster.core.dispatcher.Dispatcher;
-import com.klimalakamil.channel_broadcaster.core.dispatcher.message.ExpectedParcel;
-import message.AddressedParcel;
-import message.MessageData;
-import message.processors.MessageBuilder;
-import message.processors.TextMessageBuilder;
-import message.serializer.JsonSerializer;
+import com.klimalakamil.channel_broadcaster.core.message.AddressedParcel;
+import com.klimalakamil.channel_broadcaster.core.message.MessageData;
+import com.klimalakamil.channel_broadcaster.core.message.processors.TextMessageBuilder;
+import com.klimalakamil.channel_broadcaster.core.message.serializer.JsonSerializer;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,7 +23,6 @@ public class Client {
 
     private ClientConnection clientConnection;
     private Dispatcher<AddressedParcel> dispatcher;
-    private ExpectedParcel expectedParcel;
     private JsonSerializer serializer;
 
     public Client(InputStream serverPKS, InputStream clientPKS, char[] password) {
@@ -40,23 +36,12 @@ public class Client {
         }
 
         dispatcher = new Dispatcher<>();
-        MessageBuilder<AddressedParcel> messageBuilder = new TextMessageBuilder(clientConnection, dispatcher);
-        clientConnection.registerListener(messageBuilder);
-
-        expectedParcel = new ExpectedParcel(clientConnection);
-        dispatcher.registerParser(expectedParcel);
+        TextMessageBuilder messageBuilder = new TextMessageBuilder(clientConnection, dispatcher);
+        clientConnection.getReceiveDispatcher().registerParser(messageBuilder);
 
         serializer = new JsonSerializer();
 
         clientConnection.start();
-    }
-
-    public AddressedParcel expect(Class<? extends MessageData> clazz, long timeout, TimeUnit timeUnit) {
-        return expectedParcel.expect(clazz, timeout, timeUnit);
-    }
-
-    public AddressedParcel expectResponseTo(Class<? extends MessageData> clazz, long timeout, TimeUnit timeUnit, MessageData messageData) {
-        return expectedParcel.expectReturn(clazz, timeout, timeUnit, serializer.serialize(messageData));
     }
 
     public void send(MessageData messageData) {
@@ -65,5 +50,13 @@ public class Client {
 
     public void close() {
         clientConnection.close();
+    }
+
+    public ClientConnection getConnection() {
+        return clientConnection;
+    }
+
+    public Dispatcher<AddressedParcel> getDispatcher() {
+        return dispatcher;
     }
 }

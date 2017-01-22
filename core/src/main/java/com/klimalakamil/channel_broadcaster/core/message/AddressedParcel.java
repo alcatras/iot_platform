@@ -1,7 +1,7 @@
-package message;
+package com.klimalakamil.channel_broadcaster.core.message;
 
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
-import message.serializer.JsonSerializer;
+import com.klimalakamil.channel_broadcaster.core.message.serializer.JsonSerializer;
 
 /**
  * Created by kamil on 19.01.17.

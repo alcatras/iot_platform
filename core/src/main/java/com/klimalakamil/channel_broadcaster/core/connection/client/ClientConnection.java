@@ -1,6 +1,7 @@
 package com.klimalakamil.channel_broadcaster.core.connection.client;
 
 import com.klimalakamil.channel_broadcaster.core.connection.Connection;
+import com.klimalakamil.channel_broadcaster.core.dispatcher.Dispatcher;
 
 import java.net.InetAddress;
 
@@ -9,8 +10,21 @@ import java.net.InetAddress;
  */
 public abstract class ClientConnection extends Connection<ClientConnectionListener> {
 
+    protected Dispatcher<BytePacket> receiveDispatcher;
+
     public ClientConnection() {
         super();
+        receiveDispatcher = new Dispatcher<>();
+    }
+
+    @Override
+    protected void setup() {
+        eachListener(ClientConnectionListener::onCreate);
+    }
+
+    @Override
+    protected void release() {
+        eachListener(ClientConnectionListener::onClose);
     }
 
     public abstract boolean send(byte[] data);
@@ -18,4 +32,8 @@ public abstract class ClientConnection extends Connection<ClientConnectionListen
     public abstract InetAddress getAddress();
 
     public abstract int getPort();
+
+    public Dispatcher<BytePacket> getReceiveDispatcher() {
+        return receiveDispatcher;
+    }
 }

@@ -1,6 +1,6 @@
-package message.messagedata;
+package com.klimalakamil.channel_broadcaster.core.message.messagedata;
 
-import message.MessageData;
+import com.klimalakamil.channel_broadcaster.core.message.MessageData;
 
 /**
  * Created by kamil on 19.01.17.
@@ -9,9 +9,6 @@ public class GeneralStatusMessage implements MessageData {
 
     private int statusId;
     private String status;
-
-    public GeneralStatusMessage() {
-    }
 
     public GeneralStatusMessage(int statusId, String status) {
         this.statusId = statusId;

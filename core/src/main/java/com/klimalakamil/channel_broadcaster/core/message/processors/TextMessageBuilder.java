@@ -1,12 +1,14 @@
-package message.processors;
+package com.klimalakamil.channel_broadcaster.core.message.processors;
 
+import com.klimalakamil.channel_broadcaster.core.connection.client.BytePacket;
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
 import com.klimalakamil.channel_broadcaster.core.dispatcher.Dispatcher;
-import message.AddressedParcel;
-import message.Parcel;
-import message.serializer.JsonSerializer;
+import com.klimalakamil.channel_broadcaster.core.message.AddressedParcel;
+import com.klimalakamil.channel_broadcaster.core.message.Parcel;
+import com.klimalakamil.channel_broadcaster.core.message.serializer.JsonSerializer;
 
 import java.io.ByteArrayOutputStream;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -29,14 +31,16 @@ public class TextMessageBuilder extends MessageBuilder<AddressedParcel> {
     }
 
     @Override
-    public void receive(byte[] data, int length, boolean end) {
-        byteBuffer.write(data, 0, length);
+    public boolean parse(BytePacket message) {
+        byteBuffer.write(message.data, 0, message.length);
 
-        if (end) {
+        if (message.end) {
             Parcel parcel = serializer.deserialize(byteBuffer.toByteArray());
             AddressedParcel addressedParcel = new AddressedParcel(parcel, clientConnection, serializer);
+            logger.log(Level.INFO, "Dispatching new message with tag: " + parcel.getTag() + " " + parcel.dump());
             dispatcher.dispatch(addressedParcel);
             byteBuffer.reset();
         }
+        return true;
     }
 }

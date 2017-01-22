@@ -1,4 +1,4 @@
-package message;
+package com.klimalakamil.channel_broadcaster.core.message;
 
 import com.google.gson.Gson;
 
@@ -27,5 +27,9 @@ public class Parcel {
 
     public <T> T getMessageData(Class<T> clazz) {
         return gson.fromJson(new String(data), clazz);
+    }
+
+    public String dump() {
+        return new String(data);
     }
 }

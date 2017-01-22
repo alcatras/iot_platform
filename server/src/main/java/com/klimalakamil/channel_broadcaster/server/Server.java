@@ -2,15 +2,16 @@ package com.klimalakamil.channel_broadcaster.server;
 
 
 import com.klimalakamil.channel_broadcaster.core.dispatcher.Dispatcher;
+import com.klimalakamil.channel_broadcaster.core.message.AddressedParcel;
 import com.klimalakamil.channel_broadcaster.server.connection.ServerConnection;
 import com.klimalakamil.channel_broadcaster.server.connection.ServerConnectionFactory;
 import com.klimalakamil.channel_broadcaster.server.core_service.AuthenticationService;
+import com.klimalakamil.channel_broadcaster.server.core_service.ChannelService;
 import com.klimalakamil.channel_broadcaster.server.core_service.RoughTimeService;
 import com.klimalakamil.channel_broadcaster.server.database.DatabaseHelper;
 import com.klimalakamil.channel_broadcaster.server.database.mappers.DeviceMapper;
 import com.klimalakamil.channel_broadcaster.server.database.mappers.SessionMapper;
 import com.klimalakamil.channel_broadcaster.server.database.mappers.UserMapper;
-import message.AddressedParcel;
 
 import java.net.InetAddress;
 import java.util.logging.Level;
@@ -19,6 +20,7 @@ import java.util.logging.Logger;
 /**
  * Created by ekamkli on 2016-11-19.
  */
+// TODO: add thread pool
 public class Server {
 
     private Logger logger = Logger.getLogger(Server.class.getName());
@@ -42,7 +44,7 @@ public class Server {
 
         // Create core services dispatcher
         Dispatcher<AddressedParcel> controlDispatcher = new Dispatcher<>();
-        serverConnection.registerListener(new ClientConnectionWrapper(controlDispatcher));
+        serverConnection.registerListener(new ServerListener(controlDispatcher));
 
         // Create core services
         AuthenticationService authenticationService = new AuthenticationService();
@@ -50,6 +52,9 @@ public class Server {
 
         RoughTimeService roughTimeService = new RoughTimeService();
         controlDispatcher.registerParser(roughTimeService);
+
+        ChannelService channelService = new ChannelService();
+        controlDispatcher.registerParser(channelService);
 
         // Start server socket
         serverConnection.start();

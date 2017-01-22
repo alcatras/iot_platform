@@ -104,11 +104,13 @@ public abstract class ClientConnectionFactory {
 
         @Override
         protected void setup() {
+            super.setup();
             try {
                 inputStream = socket.getInputStream();
                 outputStream = socket.getOutputStream();
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "Unable to get iostreams: " + e.getMessage(), e);
+                close();
             }
         }
 
@@ -135,6 +137,7 @@ public abstract class ClientConnectionFactory {
 
         @Override
         protected void release() {
+            super.release();
             try {
                 socket.close();
             } catch (IOException e) {
@@ -154,7 +157,7 @@ public abstract class ClientConnectionFactory {
                         int remaining = CHUNK_SIZE - bufferPosition;
                         available -= inputStream.read(inputBuffer, bufferPosition, remaining);
                         bufferPosition = 0;
-                        eachListener(l -> l.receive(inputBuffer, CHUNK_SIZE - 1, inputBuffer[2047] == '\n'));
+                        receiveDispatcher.dispatch(new BytePacket(inputBuffer, CHUNK_SIZE - 1, inputBuffer[CHUNK_SIZE - 1] == '\n'));
                         inputBuffer = new byte[CHUNK_SIZE];
                     }
 
@@ -162,7 +165,7 @@ public abstract class ClientConnectionFactory {
 
                     // TODO: something better
                     if (inputBuffer[bufferPosition - 1] == '\n') {
-                        eachListener(l -> l.receive(inputBuffer, bufferPosition - 1, true));
+                        receiveDispatcher.dispatch(new BytePacket(inputBuffer, bufferPosition - 1, true));
                         bufferPosition = 0;
                         inputBuffer = new byte[CHUNK_SIZE];
                     }

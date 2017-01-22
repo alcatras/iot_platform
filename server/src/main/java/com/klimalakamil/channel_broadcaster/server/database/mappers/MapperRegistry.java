@@ -1,11 +1,14 @@
 package com.klimalakamil.channel_broadcaster.server.database.mappers;
 
+import com.klimalakamil.channel_broadcaster.server.database.models.Model;
+
 import java.util.Map;
 import java.util.TreeMap;
 
 /**
  * Created by kamil on 17.01.17.
  */
+// TODO: add synchronization
 public final class MapperRegistry {
 
     private static MapperRegistry instance;
@@ -26,7 +29,7 @@ public final class MapperRegistry {
         mappers.put(clazz.getCanonicalName(), mapper);
     }
 
-    public Mapper forClass(Class clazz) {
+    public Mapper forClass(Class<? extends Model> clazz) {
         return mappers.get(clazz.getCanonicalName());
     }
 }

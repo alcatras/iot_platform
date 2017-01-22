@@ -49,4 +49,11 @@ public class User extends Model {
     public void setSalt(byte[] salt) {
         this.salt = salt;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "username='" + username + '\'' +
+                '}';
+    }
 }

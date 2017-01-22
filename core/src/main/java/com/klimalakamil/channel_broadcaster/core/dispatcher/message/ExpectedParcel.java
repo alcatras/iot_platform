@@ -2,79 +2,90 @@ package com.klimalakamil.channel_broadcaster.core.dispatcher.message;
 
 import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
 import com.klimalakamil.channel_broadcaster.core.dispatcher.AbstractParser;
-import message.AddressedParcel;
-import message.MessageData;
+import com.klimalakamil.channel_broadcaster.core.message.AddressedParcel;
+import com.klimalakamil.channel_broadcaster.core.message.MessageData;
+import com.klimalakamil.channel_broadcaster.core.message.serializer.JsonSerializer;
 
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 /**
  * Created by kamil on 19.01.17.
  */
 public class ExpectedParcel implements AbstractParser<AddressedParcel> {
 
-    private String tag;
+    private AtomicBoolean isExpecting;
+
+    private Map<String, Consumer<AddressedParcel>> expectedTree;
     private AddressedParcel addressedParcel;
     private ClientConnection clientConnection;
 
+    private JsonSerializer serializer;
+
     public ExpectedParcel(ClientConnection clientConnection) {
-        tag = null;
         this.clientConnection = clientConnection;
+
+        isExpecting = new AtomicBoolean(false);
+        expectedTree = new TreeMap<>();
+
+        serializer = new JsonSerializer();
     }
 
-    private void setExpecting(String tag) {
-        synchronized (this) {
-            this.tag = tag;
-        }
+    public void reset() {
+        expectedTree.clear();
+        addressedParcel = null;
     }
 
-    private void unsetExpecting() {
-        synchronized (this) {
-            this.tag = null;
-        }
+    public void addEpectedParcel(Class<? extends MessageData> clazz, Consumer<AddressedParcel> consumer) {
+        expectedTree.put(clazz.getCanonicalName(), consumer);
+    }
+
+    public AddressedParcel expect(long timeout, TimeUnit timeUnit) {
+        isExpecting.set(true);
+        return waitForParcel(timeout, timeUnit);
+    }
+
+    public AddressedParcel expectResponse(long timeout, TimeUnit timeUnit, MessageData message) {
+        isExpecting.set(true);
+        clientConnection.send(serializer.serialize(message));
+        return waitForParcel(timeout, timeUnit);
     }
 
     private AddressedParcel waitForParcel(long timeout, TimeUnit timeUnit) {
-        addressedParcel = null;
-
         long nanoTimeout = timeUnit.toNanos(timeout);
         long time = System.nanoTime();
 
         while (System.nanoTime() - time <= nanoTimeout) {
             synchronized (this) {
                 if (addressedParcel != null) {
+                    isExpecting.set(false);
                     return addressedParcel;
                 }
+
                 try {
-                    Thread.sleep(5);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Thread.sleep(1);
+                } catch (InterruptedException ignored) {
                 }
             }
         }
         return null;
     }
 
-    public AddressedParcel expect(Class<? extends MessageData> tag, long timeout, TimeUnit timeUnit) {
-        setExpecting(tag.getCanonicalName());
-        return waitForParcel(timeout, timeUnit);
-    }
-
-    public AddressedParcel expectReturn(Class<? extends MessageData> tag, long timeout, TimeUnit timeUnit, byte[] messageData) {
-        setExpecting(tag.getCanonicalName());
-        clientConnection.send(messageData);
-        return waitForParcel(timeout, timeUnit);
-    }
-
     @Override
     public boolean parse(AddressedParcel message) {
-        synchronized (this) {
-            if (tag == null)
-                return false;
+        if (!isExpecting.get())
+            return false;
 
-            if (message.getParcel().getTag().equals(tag)) {
-                addressedParcel = message;
-                unsetExpecting();
-                return true;
+        synchronized (this) {
+            for (String tag : expectedTree.keySet()) {
+                if (tag.equals(message.getParcel().getTag())) {
+                    addressedParcel = message;
+                    expectedTree.get(tag).accept(message);
+                    return true;
+                }
             }
         }
         return false;

@@ -1,6 +1,6 @@
-package message.messagedata.time;
+package com.klimalakamil.channel_broadcaster.core.message.messagedata.time;
 
-import message.MessageData;
+import com.klimalakamil.channel_broadcaster.core.message.MessageData;
 
 /**
  * Created by kamil on 22.01.17.
