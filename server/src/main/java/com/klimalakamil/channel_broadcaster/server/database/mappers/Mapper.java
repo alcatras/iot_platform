@@ -17,7 +17,7 @@ import java.util.logging.Logger;
  */
 public abstract class Mapper<T extends Model> {
 
-    protected DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm:ss");
+    public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm:ss");
     protected DatabaseHelper databaseHelper;
     Logger logger = Logger.getLogger(Mapper.class.getName());
 

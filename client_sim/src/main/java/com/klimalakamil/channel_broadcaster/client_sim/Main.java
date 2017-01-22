@@ -5,6 +5,8 @@ import message.AddressedParcel;
 import message.messagedata.GeneralStatusMessage;
 import message.messagedata.auth.LoginMessage;
 import message.messagedata.auth.LogoutMessage;
+import message.messagedata.time.TimeRequest;
+import message.messagedata.time.TimeResponse;
 import org.apache.commons.cli.ParseException;
 
 import java.net.UnknownHostException;
@@ -48,9 +50,16 @@ public class Main {
                 } else {
                     System.out.println("FAILURE");
                 }
-            }
+            } else if (parts[0].equals("time")) {
+                TimeRequest timeRequest = new TimeRequest();
+                AddressedParcel parcel = client.expectResponseTo(TimeResponse.class, 10, TimeUnit.SECONDS, timeRequest);
 
-            if (parts[0].equals("exit")) {
+                if (parcel != null) {
+                    System.out.println(parcel.getMessageData(TimeResponse.class));
+                } else {
+                    System.out.println("FAILURE");
+                }
+            } else if (parts[0].equals("exit")) {
                 break;
             }
         }

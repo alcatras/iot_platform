@@ -49,7 +49,7 @@ public class Session extends Model {
     }
 
     public boolean isValid() {
-        return validTo.isBefore(LocalDateTime.now());
+        return validTo.isAfter(LocalDateTime.now());
     }
 
     public LocalDateTime getValidTo() {

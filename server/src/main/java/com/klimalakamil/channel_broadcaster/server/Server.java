@@ -5,6 +5,7 @@ import com.klimalakamil.channel_broadcaster.core.dispatcher.Dispatcher;
 import com.klimalakamil.channel_broadcaster.server.connection.ServerConnection;
 import com.klimalakamil.channel_broadcaster.server.connection.ServerConnectionFactory;
 import com.klimalakamil.channel_broadcaster.server.core_service.AuthenticationService;
+import com.klimalakamil.channel_broadcaster.server.core_service.RoughTimeService;
 import com.klimalakamil.channel_broadcaster.server.database.DatabaseHelper;
 import com.klimalakamil.channel_broadcaster.server.database.mappers.DeviceMapper;
 import com.klimalakamil.channel_broadcaster.server.database.mappers.SessionMapper;
@@ -47,6 +48,8 @@ public class Server {
         AuthenticationService authenticationService = new AuthenticationService();
         controlDispatcher.registerParser(authenticationService);
 
+        RoughTimeService roughTimeService = new RoughTimeService();
+        controlDispatcher.registerParser(roughTimeService);
 
         // Start server socket
         serverConnection.start();

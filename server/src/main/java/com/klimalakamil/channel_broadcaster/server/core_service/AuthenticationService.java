@@ -9,16 +9,12 @@ import com.klimalakamil.channel_broadcaster.server.database.mappers.UserMapper;
 import com.klimalakamil.channel_broadcaster.server.database.models.Device;
 import com.klimalakamil.channel_broadcaster.server.database.models.Session;
 import com.klimalakamil.channel_broadcaster.server.database.models.User;
-import message.AddressedParcel;
 import message.messagedata.GeneralStatusMessage;
 import message.messagedata.auth.LoginMessage;
 import message.messagedata.auth.LogoutMessage;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.function.Consumer;
 
 /**
  * Created by kamil on 18.01.17.
@@ -29,14 +25,10 @@ public class AuthenticationService extends CoreService {
     private DeviceMapper deviceMapper = (DeviceMapper) MapperRegistry.getInstance().forClass(Device.class);
     private SessionMapper sessionMapper = (SessionMapper) MapperRegistry.getInstance().forClass(Session.class);
 
-    private Map<String, Consumer<AddressedParcel>> actions;
-
     public AuthenticationService() {
         super(AuthenticationService.class);
 
-        actions = new TreeMap<>();
-
-        actions.put(LoginMessage.class.getCanonicalName(), addressedParcel -> {
+        addAction(LoginMessage.class, addressedParcel -> {
             LoginMessage data = addressedParcel.getParcel().getMessageData(LoginMessage.class);
             User user = userMapper.get(data.getUsername());
 
@@ -67,7 +59,7 @@ public class AuthenticationService extends CoreService {
             }
         });
 
-        actions.put(LogoutMessage.class.getCanonicalName(), addressedParcel -> {
+        addAction(LogoutMessage.class, addressedParcel -> {
             Session session = sessionMapper.get(addressedParcel.getConnection());
 
             if (session != null) {
@@ -81,17 +73,11 @@ public class AuthenticationService extends CoreService {
 
     public boolean isActive(Device device) {
         Session session = sessionMapper.get(device);
-        return session != null && session.getValidTo().isAfter(LocalDateTime.now());
+        return session != null && session.isValid();
     }
 
-    @Override
-    public boolean parse(AddressedParcel addressedParcel) {
-
-        Consumer<AddressedParcel> consumer = actions.get(addressedParcel.getParcel().getTag());
-        if (consumer != null) {
-            consumer.accept(addressedParcel);
-            return true;
-        }
-        return false;
+    public boolean isActive(ClientConnection connection) {
+        Session session = sessionMapper.get(connection);
+        return session != null && session.isValid();
     }
 }

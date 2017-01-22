@@ -32,7 +32,7 @@ public class SessionMapper extends Mapper<Session> {
                 model.getDevice().getId() + "', '" +
                 model.getAddress().getHostAddress() + "', '" +
                 model.getControlPort() + "', '" +
-                model.getValidTo() + "', " +
+                model.getValidTo().format(formatter) + "', " +
                 getInsertQueryDates(model) +
                 ")"
         );
@@ -43,9 +43,9 @@ public class SessionMapper extends Mapper<Session> {
         databaseHelper.executeQuery("UPDATE " + getTableName(Session.class) +
                 " SET " +
                 "device_id = '" + model.getDevice().getId() + "', " +
-                "ip = '" + model.getAddress().getHostName() + "', " +
+                "ip = '" + model.getAddress().getHostAddress() + "', " +
                 "control_port = '" + model.getControlPort() + "', " +
-                "valid_before = '" + model.getValidTo() + "', " +
+                "valid_before = '" + model.getValidTo().format(formatter) + "', " +
                 getUpdateQueryDates(model) +
                 " WHERE " +
                 "id = '" + model.getId() + "'"
@@ -68,7 +68,7 @@ public class SessionMapper extends Mapper<Session> {
             session.setDevice(deviceMapper.get(resultSet.getInt("device_id")));
 
             session.setAddress(InetAddress.getByName(resultSet.getString("ip")));
-            session.setValidTo(LocalDateTime.parse(resultSet.getString("valid_before")));
+            session.setValidTo(LocalDateTime.parse(resultSet.getString("valid_before"), formatter));
 
         } catch (SQLException | UnknownHostException e) {
             logger.log(Level.WARNING, "Unable to parse Session data: " + e.getMessage(), e);
