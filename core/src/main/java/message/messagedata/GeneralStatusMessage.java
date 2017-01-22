@@ -10,6 +10,9 @@ public class GeneralStatusMessage implements MessageData {
     private int statusId;
     private String status;
 
+    public GeneralStatusMessage() {
+    }
+
     public GeneralStatusMessage(int statusId, String status) {
         this.statusId = statusId;
         this.status = status;

@@ -55,7 +55,7 @@ public class Client {
         return expectedParcel.expect(clazz, timeout, timeUnit);
     }
 
-    public AddressedParcel expectReturn(Class<? extends MessageData> clazz, long timeout, TimeUnit timeUnit, MessageData messageData) {
+    public AddressedParcel expectResponseTo(Class<? extends MessageData> clazz, long timeout, TimeUnit timeUnit, MessageData messageData) {
         return expectedParcel.expectReturn(clazz, timeout, timeUnit, serializer.serialize(messageData));
     }
 

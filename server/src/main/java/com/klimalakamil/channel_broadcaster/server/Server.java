@@ -24,7 +24,6 @@ public class Server {
     private ServerConnection serverConnection;
 
     private Server() throws Exception {
-
         // Create database
         DatabaseHelper databaseHelper = new DatabaseHelper("jdbc:MySql://localhost:3306/java2016", "tester", "password");
 

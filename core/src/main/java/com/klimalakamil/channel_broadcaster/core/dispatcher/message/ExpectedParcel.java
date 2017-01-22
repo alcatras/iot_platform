@@ -34,6 +34,8 @@ public class ExpectedParcel implements AbstractParser<AddressedParcel> {
     }
 
     private AddressedParcel waitForParcel(long timeout, TimeUnit timeUnit) {
+        addressedParcel = null;
+
         long nanoTimeout = timeUnit.toNanos(timeout);
         long time = System.nanoTime();
 

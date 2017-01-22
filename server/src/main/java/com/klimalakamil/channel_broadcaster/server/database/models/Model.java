@@ -12,11 +12,6 @@ public abstract class Model {
     private LocalDateTime dateUpdated;
 
     public Model() {
-
-    }
-
-    public Model(int id) {
-        this.id = id;
         setDateCreated();
     }
 

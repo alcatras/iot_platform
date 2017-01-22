@@ -10,18 +10,18 @@ public class Session extends Model {
     private Device device;
     private InetAddress address;
     private int controlPort;
-    private LocalDateTime validBefore;
+    private LocalDateTime validTo;
 
     public Session() {
         super();
     }
 
-    public Session(int id, Device device, InetAddress address, int controlPort, LocalDateTime validBefore) {
-        super(id);
+    public Session(Device device, InetAddress address, int controlPort, LocalDateTime validTo) {
+        super();
         this.device = device;
         this.address = address;
         this.controlPort = controlPort;
-        this.validBefore = validBefore;
+        this.validTo = validTo;
     }
 
     public Device getDevice() {
@@ -49,14 +49,14 @@ public class Session extends Model {
     }
 
     public boolean isValid() {
-        return validBefore.isBefore(LocalDateTime.now());
+        return validTo.isBefore(LocalDateTime.now());
     }
 
-    public LocalDateTime getValidBefore() {
-        return validBefore;
+    public LocalDateTime getValidTo() {
+        return validTo;
     }
 
-    public void setValidBefore(LocalDateTime validBefore) {
-        this.validBefore = validBefore;
+    public void setValidTo(LocalDateTime validTo) {
+        this.validTo = validTo;
     }
 }

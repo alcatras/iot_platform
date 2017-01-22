@@ -6,7 +6,6 @@ import com.klimalakamil.channel_broadcaster.server.database.models.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,17 +20,16 @@ public class DeviceMapper extends Mapper<Device> {
         super(helper, Device.class);
     }
 
+    // TODO: switch to JDBC executeUpdate etc... methods
     @Override
     public void insert(Device model) {
 
         databaseHelper.executeQuery("INSERT INTO " + getTableName(Device.class) +
-                "(id, user_id, name, salt, type, updated_at) values (" +
-                model.getId() + ", " +
-                model.getUser().getId() + ", " +
-                model.getName() + ", " +
-                model.getType() + ", " +
-                model.getDateCreated() + ", " +
-                model.getDateUpdated() +
+                "(user_id, name, type, " + getInsertQueryDatesNames() + ") values ('" +
+                model.getUser().getId() + "', '" +
+                model.getName() + "', '" +
+                model.getType() + "', " +
+                getInsertQueryDates(model) +
                 ");"
         );
     }
@@ -44,7 +42,7 @@ public class DeviceMapper extends Mapper<Device> {
     @Override
     public void delete(Device model) {
         databaseHelper.executeQuery("DELETE FROM " + getTableName(Device.class) +
-                " WHERE id = " + model.getId() + ";"
+                " WHERE id = '" + model.getId() + "'"
         );
     }
 
@@ -67,18 +65,16 @@ public class DeviceMapper extends Mapper<Device> {
 
     @Override
     public Device get(int id) {
-        ResultSet resultSet = databaseHelper.executeQueryForResult("SELECT FROM " + getTableName(Device.class) +
-                " WHERE id = " + id + " LIMIT 1");
+        ResultSet resultSet = databaseHelper.executeQueryForResult("SELECT * FROM " + getTableName(Device.class) +
+                " WHERE id = '" + id + "' LIMIT 1");
 
-        List<Device> devices = createModels(resultSet);
-        return devices.size() > 0 ? devices.get(0) : null;
+        return getOne(resultSet);
     }
 
-    public Device get(String name) {
-        ResultSet resultSet = databaseHelper.executeQueryForResult("SELECT FROM " + getTableName(Device.class) +
-                " WHERE username = " + name + " LIMIT 1");
+    public Device get(User user, String name) {
+        ResultSet resultSet = databaseHelper.executeQueryForResult("SELECT * FROM " + getTableName(Device.class) +
+                " WHERE name = '" + name + "' AND user_id = '" + user.getId() + "' LIMIT 1");
 
-        List<Device> devices = createModels(resultSet);
-        return devices.size() > 0 ? devices.get(0) : null;
+        return getOne(resultSet);
     }
 }

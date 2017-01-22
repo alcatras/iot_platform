@@ -4,6 +4,7 @@ import com.klimalakamil.channel_broadcaster.api.client.Client;
 import message.AddressedParcel;
 import message.messagedata.GeneralStatusMessage;
 import message.messagedata.auth.LoginMessage;
+import message.messagedata.auth.LogoutMessage;
 import org.apache.commons.cli.ParseException;
 
 import java.net.UnknownHostException;
@@ -30,18 +31,29 @@ public class Main {
             String[] parts = line.split(" ");
 
             if (parts[0].equals("login")) {
-                LoginMessage loginMessage = new LoginMessage("test", "password", "device");
-                AddressedParcel parcel = client.expectReturn(GeneralStatusMessage.class, 3, TimeUnit.SECONDS, loginMessage);
+                LoginMessage loginMessage = new LoginMessage(parts[1], parts[2], parts[3]);
+                AddressedParcel parcel = client.expectResponseTo(GeneralStatusMessage.class, 3, TimeUnit.SECONDS, loginMessage);
 
                 if (parcel != null) {
                     System.out.println(parcel.getMessageData(GeneralStatusMessage.class));
                 } else {
                     System.out.println("FAILURE");
                 }
+            } else if (parts[0].equals("logout")) {
+                LogoutMessage logoutMessage = new LogoutMessage();
+                AddressedParcel parcel = client.expectResponseTo(GeneralStatusMessage.class, 3, TimeUnit.SECONDS, logoutMessage);
 
-                client.close();
-                return;
+                if (parcel != null) {
+                    System.out.println(parcel.getMessageData(GeneralStatusMessage.class));
+                } else {
+                    System.out.println("FAILURE");
+                }
+            }
+
+            if (parts[0].equals("exit")) {
+                break;
             }
         }
+        client.close();
     }
 }

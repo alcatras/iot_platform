@@ -15,8 +15,8 @@ public class User extends Model {
 
     }
 
-    public User(int id, String username, char[] password) {
-        super(id);
+    public User(String username, char[] password) {
+        super();
         this.username = username;
         setPassword(password);
     }

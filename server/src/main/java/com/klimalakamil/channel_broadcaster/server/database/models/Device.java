@@ -17,8 +17,8 @@ public class Device extends Model {
         super();
     }
 
-    public Device(int id, User user, String name, int type) {
-        super(id);
+    public Device(User user, String name, int type) {
+        super();
         this.user = user;
         this.name = name;
         this.type = type;

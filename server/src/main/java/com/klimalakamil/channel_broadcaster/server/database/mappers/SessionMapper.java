@@ -1,5 +1,6 @@
 package com.klimalakamil.channel_broadcaster.server.database.mappers;
 
+import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
 import com.klimalakamil.channel_broadcaster.server.database.DatabaseHelper;
 import com.klimalakamil.channel_broadcaster.server.database.models.Device;
 import com.klimalakamil.channel_broadcaster.server.database.models.Session;
@@ -9,7 +10,6 @@ import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,26 +28,34 @@ public class SessionMapper extends Mapper<Session> {
     public void insert(Session model) {
 
         databaseHelper.executeQuery("INSERT INTO " + getTableName(Session.class) +
-                "(id, device_id, ip, control_port, valid_before, created_at, updated_at) values (" +
-                model.getId() + ", " +
-                model.getDevice().getId() + ", " +
-                model.getAddress().getHostAddress() + ", " +
-                model.getValidBefore() + ", " +
-                model.getDateCreated() + ", " +
-                model.getDateUpdated() +
+                "(device_id, ip, control_port, valid_before, " + getInsertQueryDatesNames() + ") values ('" +
+                model.getDevice().getId() + "', '" +
+                model.getAddress().getHostAddress() + "', '" +
+                model.getControlPort() + "', '" +
+                model.getValidTo() + "', " +
+                getInsertQueryDates(model) +
                 ")"
         );
     }
 
     @Override
     public void update(Session model) {
-
+        databaseHelper.executeQuery("UPDATE " + getTableName(Session.class) +
+                " SET " +
+                "device_id = '" + model.getDevice().getId() + "', " +
+                "ip = '" + model.getAddress().getHostName() + "', " +
+                "control_port = '" + model.getControlPort() + "', " +
+                "valid_before = '" + model.getValidTo() + "', " +
+                getUpdateQueryDates(model) +
+                " WHERE " +
+                "id = '" + model.getId() + "'"
+        );
     }
 
     @Override
     public void delete(Session model) {
         databaseHelper.executeQuery("DELETE FROM " + getTableName(Session.class) +
-                " WHERE id = " + model.getId() + ";"
+                " WHERE id = '" + model.getId() + "';"
         );
     }
 
@@ -56,11 +64,11 @@ public class SessionMapper extends Mapper<Session> {
         Session session = new Session();
 
         try {
-            DeviceMapper deviceMapper = (DeviceMapper) MapperRegistry.getInstance().forClass(Session.class);
+            DeviceMapper deviceMapper = (DeviceMapper) MapperRegistry.getInstance().forClass(Device.class);
             session.setDevice(deviceMapper.get(resultSet.getInt("device_id")));
 
             session.setAddress(InetAddress.getByName(resultSet.getString("ip")));
-            session.setValidBefore(LocalDateTime.parse(resultSet.getString("valid_before")));
+            session.setValidTo(LocalDateTime.parse(resultSet.getString("valid_before")));
 
         } catch (SQLException | UnknownHostException e) {
             logger.log(Level.WARNING, "Unable to parse Session data: " + e.getMessage(), e);
@@ -71,18 +79,23 @@ public class SessionMapper extends Mapper<Session> {
 
     @Override
     public Session get(int id) {
-        ResultSet resultSet = databaseHelper.executeQueryForResult("SELECT FROM " + getTableName(Session.class) +
-                " WHERE id = " + id + " LIMIT 1");
+        ResultSet resultSet = databaseHelper.executeQueryForResult("SELECT * FROM " + getTableName(Session.class) +
+                " WHERE id = '" + id + "' LIMIT 1");
 
-        List<Session> sessions = createModels(resultSet);
-        return sessions.size() > 0 ? sessions.get(0) : null;
+        return getOne(resultSet);
     }
 
     public Session get(Device device) {
-        ResultSet resultSet = databaseHelper.executeQueryForResult("SELECT FROM " + getTableName(Session.class) +
-                " WHERE device_id = " + device.getId() + " LIMIT 1");
+        ResultSet resultSet = databaseHelper.executeQueryForResult("SELECT * FROM " + getTableName(Session.class) +
+                " WHERE device_id = '" + device.getId() + "' LIMIT 1");
 
-        List<Session> sessions = createModels(resultSet);
-        return sessions.size() > 0 ? sessions.get(0) : null;
+        return getOne(resultSet);
+    }
+
+    public Session get(ClientConnection connection) {
+        ResultSet resultSet = databaseHelper.executeQueryForResult("SELECT * FROM " + getTableName(Session.class) +
+                " WHERE ip = '" + connection.getAddress().getHostAddress() + "' AND control_port = '" + connection.getPort() + "' LIMIT 1");
+
+        return getOne(resultSet);
     }
 }

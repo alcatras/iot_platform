@@ -6,7 +6,6 @@ import com.klimalakamil.channel_broadcaster.server.database.models.User;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Base64;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,12 +29,11 @@ public class UserMapper extends Mapper<User> {
         String encodedDigest = encoder.encodeToString(model.getPasswordDigest());
 
         databaseHelper.executeQuery("INSERT INTO " + getTableName(User.class) +
-                "(username, salt, password_digest, created_at, updated_at) values ('" +
+                "(username, salt, password_digest, " + getInsertQueryDatesNames() + ") values ('" +
                 model.getUsername() + "', '" +
                 encodedSalt + "', '" +
-                encodedDigest + "', '" +
-                model.getDateCreated() + "', '" +
-                model.getDateUpdated() + "'" +
+                encodedDigest + "', " +
+                getInsertQueryDates(model) +
                 ");"
         );
     }
@@ -48,7 +46,7 @@ public class UserMapper extends Mapper<User> {
     @Override
     public void delete(User model) {
         databaseHelper.executeQuery("DELETE FROM " + getTableName(User.class) +
-                " WHERE id = " + model.getId() + ";"
+                " WHERE id = '" + model.getId() + "';"
         );
     }
 
@@ -73,15 +71,13 @@ public class UserMapper extends Mapper<User> {
         ResultSet resultSet = databaseHelper.executeQueryForResult("SELECT * FROM " + getTableName(User.class) +
                 " WHERE id = " + id + " LIMIT 1");
 
-        List<User> users = createModels(resultSet);
-        return users.size() > 0 ? users.get(0) : null;
+        return getOne(resultSet);
     }
 
     public User get(String username) {
         ResultSet resultSet = databaseHelper.executeQueryForResult("SELECT * FROM " + getTableName(User.class) +
                 " WHERE username = '" + username + "' LIMIT 1");
 
-        List<User> users = createModels(resultSet);
-        return users.size() > 0 ? users.get(0) : null;
+        return getOne(resultSet);
     }
 }

@@ -5,6 +5,7 @@ import com.klimalakamil.channel_broadcaster.server.database.models.Model;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.logging.Logger;
  */
 public abstract class Mapper<T extends Model> {
 
-    protected DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    protected DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy HH:mm:ss");
     protected DatabaseHelper databaseHelper;
     Logger logger = Logger.getLogger(Mapper.class.getName());
 
@@ -41,16 +42,27 @@ public abstract class Mapper<T extends Model> {
 
     protected abstract T createModel(ResultSet resultSet);
 
-    protected List<T> createModels(ResultSet resultSet) {
+    protected String getInsertQueryDatesNames() {
+        return "created_at, updated_at";
+    }
+
+    protected String getInsertQueryDates(Model model) {
+        return "'" + model.getDateCreated().format(formatter) + "', '" + model.getDateUpdated().format(formatter) + "'";
+    }
+
+    protected String getUpdateQueryDates(Model model) {
+        return "created_at = '" + model.getDateCreated().format(formatter) + "', updated_at = '" + model.getDateUpdated().format(formatter) + "'";
+    }
+
+    protected List<T> getAll(ResultSet resultSet) {
         List<T> models = new ArrayList<T>();
 
         try {
             while (resultSet.next()) {
                 T model = createModel(resultSet);
                 model.setId(resultSet.getInt("id"));
-                // TODO: something
-                //model.setDateCreated(LocalDateTime.parse(resultSet.getString("created_at"), formatter));
-                //model.setDateUpdated(LocalDateTime.parse(resultSet.getString("updated_at"), formatter));
+                model.setDateCreated(LocalDateTime.parse(resultSet.getString("created_at"), formatter));
+                model.setDateUpdated(LocalDateTime.parse(resultSet.getString("updated_at"), formatter));
 
                 models.add(model);
             }
@@ -59,6 +71,12 @@ public abstract class Mapper<T extends Model> {
         }
 
         return models;
+    }
+
+    // TODO: remove creation of models list
+    protected T getOne(ResultSet resultSet) {
+        List<T> list = getAll(resultSet);
+        return list.size() > 0 ? list.get(0) : null;
     }
 
     protected String getTableName(Class clazz) {

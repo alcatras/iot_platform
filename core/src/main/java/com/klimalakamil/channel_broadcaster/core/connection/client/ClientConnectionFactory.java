@@ -124,6 +124,16 @@ public abstract class ClientConnectionFactory {
         }
 
         @Override
+        public InetAddress getAddress() {
+            return socket.getInetAddress();
+        }
+
+        @Override
+        public int getPort() {
+            return socket.getPort();
+        }
+
+        @Override
         protected void release() {
             try {
                 socket.close();
