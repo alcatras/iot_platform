@@ -1,15 +1,15 @@
 package com.klimalakamil.iot_platform.client_sim;
 
 import com.klimalakamil.iot_platform.api.client.Client;
-import com.klimalakamil.channel_broadcaster.core.dispatcher.message.ExpectedParcel;
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.GeneralStatusMessage;
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.NotAuthorizedMessage;
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.auth.LoginMessage;
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.auth.LogoutMessage;
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.channel.DeviceProperties;
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.channel.NewChannelRequest;
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.time.TimeRequest;
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.time.TimeResponse;
+import com.klimalakamil.iot_platform.core.dispatcher.message.ExpectedParcel;
+import com.klimalakamil.iot_platform.core.message.messagedata.GeneralStatusMessage;
+import com.klimalakamil.iot_platform.core.message.messagedata.NotAuthorizedMessage;
+import com.klimalakamil.iot_platform.core.message.messagedata.auth.LoginMessage;
+import com.klimalakamil.iot_platform.core.message.messagedata.auth.LogoutMessage;
+import com.klimalakamil.iot_platform.core.message.messagedata.channel.DeviceProperties;
+import com.klimalakamil.iot_platform.core.message.messagedata.channel.NewChannelRequest;
+import com.klimalakamil.iot_platform.core.message.messagedata.time.TimeRequest;
+import com.klimalakamil.iot_platform.core.message.messagedata.time.TimeResponse;
 import org.apache.commons.cli.ParseException;
 
 import java.net.UnknownHostException;

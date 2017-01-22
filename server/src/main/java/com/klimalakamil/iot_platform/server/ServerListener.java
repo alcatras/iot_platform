@@ -1,11 +1,11 @@
 package com.klimalakamil.iot_platform.server;
 
-import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
-import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnectionFactory;
-import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnectionListener;
-import com.klimalakamil.channel_broadcaster.core.dispatcher.Dispatcher;
-import com.klimalakamil.channel_broadcaster.core.message.AddressedParcel;
-import com.klimalakamil.channel_broadcaster.core.message.processors.TextMessageBuilder;
+import com.klimalakamil.iot_platform.core.connection.client.ClientConnection;
+import com.klimalakamil.iot_platform.core.connection.client.ClientConnectionFactory;
+import com.klimalakamil.iot_platform.core.connection.client.ClientConnectionListener;
+import com.klimalakamil.iot_platform.core.dispatcher.Dispatcher;
+import com.klimalakamil.iot_platform.core.message.AddressedParcel;
+import com.klimalakamil.iot_platform.core.message.processors.TextMessageBuilder;
 import com.klimalakamil.iot_platform.server.connection.ServerConnectionListener;
 
 import java.net.Socket;

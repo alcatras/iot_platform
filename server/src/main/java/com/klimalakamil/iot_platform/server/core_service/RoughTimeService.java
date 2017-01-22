@@ -1,8 +1,8 @@
 package com.klimalakamil.iot_platform.server.core_service;
 
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.NotAuthorizedMessage;
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.time.TimeRequest;
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.time.TimeResponse;
+import com.klimalakamil.iot_platform.core.message.messagedata.NotAuthorizedMessage;
+import com.klimalakamil.iot_platform.core.message.messagedata.time.TimeRequest;
+import com.klimalakamil.iot_platform.core.message.messagedata.time.TimeResponse;
 import com.klimalakamil.iot_platform.server.database.mappers.Mapper;
 
 import java.time.LocalDateTime;

@@ -1,13 +1,13 @@
 package com.klimalakamil.iot_platform.server.core_service;
 
-import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
-import com.klimalakamil.channel_broadcaster.core.message.MessageData;
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.GeneralStatusMessage;
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.NotAuthorizedMessage;
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.channel.DeviceProperties;
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.channel.NewChannelRequest;
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.channel.SimplePair;
-import com.klimalakamil.channel_broadcaster.core.message.serializer.JsonSerializer;
+import com.klimalakamil.iot_platform.core.connection.client.ClientConnection;
+import com.klimalakamil.iot_platform.core.message.MessageData;
+import com.klimalakamil.iot_platform.core.message.messagedata.GeneralStatusMessage;
+import com.klimalakamil.iot_platform.core.message.messagedata.NotAuthorizedMessage;
+import com.klimalakamil.iot_platform.core.message.messagedata.channel.DeviceProperties;
+import com.klimalakamil.iot_platform.core.message.messagedata.channel.NewChannelRequest;
+import com.klimalakamil.iot_platform.core.message.messagedata.channel.SimplePair;
+import com.klimalakamil.iot_platform.core.message.serializer.JsonSerializer;
 import com.klimalakamil.iot_platform.server.ConnectionRegistry;
 import com.klimalakamil.iot_platform.server.database.mappers.DeviceMapper;
 import com.klimalakamil.iot_platform.server.database.mappers.MapperRegistry;

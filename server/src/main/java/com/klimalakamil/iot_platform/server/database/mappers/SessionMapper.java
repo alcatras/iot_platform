@@ -1,6 +1,6 @@
 package com.klimalakamil.iot_platform.server.database.mappers;
 
-import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
+import com.klimalakamil.iot_platform.core.connection.client.ClientConnection;
 import com.klimalakamil.iot_platform.server.database.DatabaseHelper;
 import com.klimalakamil.iot_platform.server.database.models.Device;
 import com.klimalakamil.iot_platform.server.database.models.Session;

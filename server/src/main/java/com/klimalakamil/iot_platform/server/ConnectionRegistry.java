@@ -1,6 +1,6 @@
 package com.klimalakamil.iot_platform.server;
 
-import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
+import com.klimalakamil.iot_platform.core.connection.client.ClientConnection;
 
 import java.net.InetAddress;
 import java.util.Map;

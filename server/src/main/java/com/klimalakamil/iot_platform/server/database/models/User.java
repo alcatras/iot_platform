@@ -1,6 +1,6 @@
 package com.klimalakamil.iot_platform.server.database.models;
 
-import com.klimalakamil.channel_broadcaster.core.authentication.PasswordHelper;
+import com.klimalakamil.iot_platform.core.authentication.PasswordHelper;
 
 /**
  * Created by kamil on 15.01.17.

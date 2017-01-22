@@ -1,8 +1,8 @@
 package com.klimalakamil.iot_platform.server;
 
 
-import com.klimalakamil.channel_broadcaster.core.dispatcher.Dispatcher;
-import com.klimalakamil.channel_broadcaster.core.message.AddressedParcel;
+import com.klimalakamil.iot_platform.core.dispatcher.Dispatcher;
+import com.klimalakamil.iot_platform.core.message.AddressedParcel;
 import com.klimalakamil.iot_platform.server.connection.ServerConnection;
 import com.klimalakamil.iot_platform.server.connection.ServerConnectionFactory;
 import com.klimalakamil.iot_platform.server.core_service.AuthenticationService;

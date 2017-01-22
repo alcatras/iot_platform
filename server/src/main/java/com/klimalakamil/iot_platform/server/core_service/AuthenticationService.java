@@ -1,10 +1,10 @@
 package com.klimalakamil.iot_platform.server.core_service;
 
-import com.klimalakamil.channel_broadcaster.core.authentication.PasswordHelper;
-import com.klimalakamil.channel_broadcaster.core.connection.client.ClientConnection;
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.GeneralStatusMessage;
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.auth.LoginMessage;
-import com.klimalakamil.channel_broadcaster.core.message.messagedata.auth.LogoutMessage;
+import com.klimalakamil.iot_platform.core.authentication.PasswordHelper;
+import com.klimalakamil.iot_platform.core.connection.client.ClientConnection;
+import com.klimalakamil.iot_platform.core.message.messagedata.GeneralStatusMessage;
+import com.klimalakamil.iot_platform.core.message.messagedata.auth.LoginMessage;
+import com.klimalakamil.iot_platform.core.message.messagedata.auth.LogoutMessage;
 import com.klimalakamil.iot_platform.server.database.mappers.DeviceMapper;
 import com.klimalakamil.iot_platform.server.database.mappers.MapperRegistry;
 import com.klimalakamil.iot_platform.server.database.mappers.SessionMapper;

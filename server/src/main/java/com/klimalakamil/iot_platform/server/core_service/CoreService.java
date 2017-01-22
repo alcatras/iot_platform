@@ -1,8 +1,8 @@
 package com.klimalakamil.iot_platform.server.core_service;
 
-import com.klimalakamil.channel_broadcaster.core.dispatcher.AbstractParser;
-import com.klimalakamil.channel_broadcaster.core.message.AddressedParcel;
-import com.klimalakamil.channel_broadcaster.core.message.MessageData;
+import com.klimalakamil.iot_platform.core.dispatcher.AbstractParser;
+import com.klimalakamil.iot_platform.core.message.AddressedParcel;
+import com.klimalakamil.iot_platform.core.message.MessageData;
 
 import java.util.Map;
 import java.util.TreeMap;

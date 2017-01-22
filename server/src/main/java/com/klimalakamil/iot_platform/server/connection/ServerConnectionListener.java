@@ -1,6 +1,6 @@
 package com.klimalakamil.iot_platform.server.connection;
 
-import com.klimalakamil.channel_broadcaster.core.connection.ConnectionListener;
+import com.klimalakamil.iot_platform.core.connection.ConnectionListener;
 
 import java.net.Socket;
 

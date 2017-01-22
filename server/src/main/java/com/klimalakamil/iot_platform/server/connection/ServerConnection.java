@@ -1,6 +1,6 @@
 package com.klimalakamil.iot_platform.server.connection;
 
-import com.klimalakamil.channel_broadcaster.core.connection.Connection;
+import com.klimalakamil.iot_platform.core.connection.Connection;
 
 /**
  * Created by kamil on 17.01.17.
