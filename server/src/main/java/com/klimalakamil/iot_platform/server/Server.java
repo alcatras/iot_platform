@@ -30,10 +30,10 @@ public class Server {
         // Create database
         DatabaseHelper databaseHelper = new DatabaseHelper("jdbc:MySql://localhost:3306/java2016", "tester", "password");
 
-        // Create mappers
-        UserMapper userMapper = new UserMapper(databaseHelper);
-        DeviceMapper deviceMapper = new DeviceMapper(databaseHelper);
-        SessionMapper sessionMapper = new SessionMapper(databaseHelper);
+        // Create mappers (they're auto registered)
+        new UserMapper(databaseHelper);
+        new DeviceMapper(databaseHelper);
+        new SessionMapper(databaseHelper);
 
         // Create connection
         serverConnection = ServerConnectionFactory.createConnection(
@@ -53,7 +53,7 @@ public class Server {
         RoughTimeService roughTimeService = new RoughTimeService();
         controlDispatcher.registerParser(roughTimeService);
 
-        ChannelService channelService = new ChannelService();
+        ChannelService channelService = new ChannelService(controlDispatcher);
         controlDispatcher.registerParser(channelService);
 
         // Start server socket
@@ -61,11 +61,8 @@ public class Server {
     }
 
     public static void main(String[] args) throws Exception {
-        //System.setProperty("javax.net.debug", "all");
         Logger logger = Logger.getLogger(Server.class.getName() + "::main");
-
         logger.log(Level.INFO, "Starting server");
-
         new Server();
     }
 }

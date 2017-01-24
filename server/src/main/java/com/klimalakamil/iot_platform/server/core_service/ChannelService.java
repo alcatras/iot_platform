@@ -1,12 +1,13 @@
 package com.klimalakamil.iot_platform.server.core_service;
 
 import com.klimalakamil.iot_platform.core.connection.client.ClientConnection;
+import com.klimalakamil.iot_platform.core.dispatcher.Dispatcher;
+import com.klimalakamil.iot_platform.core.dispatcher.message.ExpectedParcel;
+import com.klimalakamil.iot_platform.core.message.AddressedParcel;
 import com.klimalakamil.iot_platform.core.message.MessageData;
 import com.klimalakamil.iot_platform.core.message.messagedata.GeneralStatusMessage;
 import com.klimalakamil.iot_platform.core.message.messagedata.NotAuthorizedMessage;
-import com.klimalakamil.iot_platform.core.message.messagedata.channel.DeviceProperties;
-import com.klimalakamil.iot_platform.core.message.messagedata.channel.NewChannelRequest;
-import com.klimalakamil.iot_platform.core.message.messagedata.channel.SimplePair;
+import com.klimalakamil.iot_platform.core.message.messagedata.channel.*;
 import com.klimalakamil.iot_platform.core.message.serializer.JsonSerializer;
 import com.klimalakamil.iot_platform.server.ConnectionRegistry;
 import com.klimalakamil.iot_platform.server.database.mappers.DeviceMapper;
@@ -17,6 +18,7 @@ import com.klimalakamil.iot_platform.server.database.models.Session;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by kamil on 22.01.17.
@@ -29,8 +31,12 @@ public class ChannelService extends CoreService {
     private ConnectionRegistry connectionRegistry = ConnectionRegistry.getInstance();
     private JsonSerializer serializer = new JsonSerializer();
 
-    public ChannelService() {
+    private Dispatcher<AddressedParcel> parcelDispatcher;
+
+    public ChannelService(Dispatcher<AddressedParcel> parcelDispatcher) {
         super(ChannelService.class);
+
+        this.parcelDispatcher = parcelDispatcher;
 
         addAction(NewChannelRequest.class, addressedParcel -> {
             ClientConnection connection = addressedParcel.getConnection();
@@ -49,7 +55,28 @@ public class ChannelService extends CoreService {
                     if (device != null) {
                         if (session.isValid()) {
                             ClientConnection deviceConnection = connectionRegistry.get(session.getAddress(), session.getControlPort());
-                            send(deviceConnection, new GeneralStatusMessage(55, "o dziala"));
+                            ExpectedParcel expectedParcel = new ExpectedParcel(deviceConnection);
+                            parcelDispatcher.registerParser(expectedParcel);
+
+                            expectedParcel.addExpected(GeneralStatusMessage.class, parcel -> {
+                                System.out.println(parcel.getMessageData(GeneralStatusMessage.class));
+                            });
+
+                            ChannelParticipationRequest request = new ChannelParticipationRequest(rootDevice.getName(), deviceProperties);
+                            AddressedParcel response = expectedParcel.expectResponse(3, TimeUnit.SECONDS, request);
+
+                            if(response != null) {
+                                GeneralStatusMessage msg = response.getMessageData(GeneralStatusMessage.class);
+                                if(msg.getStatusId() == 0) {
+                                    devicesState.add(new SimplePair<>(deviceProperties.getName(), "ok"));
+                                } else {
+                                    devicesState.add(new SimplePair<>(deviceProperties.getName(), "refused"));
+                                }
+                            } else {
+                                devicesState.add(new SimplePair<>(deviceProperties.getName(), "timeout"));
+                            }
+
+                            parcelDispatcher.unregisterParser(expectedParcel);
                         } else {
                             devicesState.add(new SimplePair<>(deviceProperties.getName(), "not logged in"));
                         }
@@ -57,6 +84,8 @@ public class ChannelService extends CoreService {
                         devicesState.add(new SimplePair<>(deviceProperties.getName(), "not existing"));
                     }
                 }
+
+                send(connection, new NewChannelResponse(devicesState));
 
             } else {
                 addressedParcel.sendBack(new NotAuthorizedMessage());

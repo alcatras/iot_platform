@@ -2,11 +2,15 @@ package com.klimalakamil.iot_platform.core.dispatcher;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by kamil on 18.01.17.
  */
 public class Dispatcher<T> {
+
+    private Logger logger = Logger.getLogger(Dispatcher.class.getName());
 
     private List<AbstractParser<T>> parsers;
 

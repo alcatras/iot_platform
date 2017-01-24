@@ -6,8 +6,10 @@ import com.klimalakamil.iot_platform.core.message.messagedata.GeneralStatusMessa
 import com.klimalakamil.iot_platform.core.message.messagedata.NotAuthorizedMessage;
 import com.klimalakamil.iot_platform.core.message.messagedata.auth.LoginMessage;
 import com.klimalakamil.iot_platform.core.message.messagedata.auth.LogoutMessage;
+import com.klimalakamil.iot_platform.core.message.messagedata.channel.ChannelParticipationRequest;
 import com.klimalakamil.iot_platform.core.message.messagedata.channel.DeviceProperties;
 import com.klimalakamil.iot_platform.core.message.messagedata.channel.NewChannelRequest;
+import com.klimalakamil.iot_platform.core.message.messagedata.channel.NewChannelResponse;
 import com.klimalakamil.iot_platform.core.message.messagedata.time.TimeRequest;
 import com.klimalakamil.iot_platform.core.message.messagedata.time.TimeResponse;
 import org.apache.commons.cli.ParseException;
@@ -29,6 +31,25 @@ public class Main {
                 "password".toCharArray()
         );
 
+        ExpectedParcel coreExpectedParcel = new ExpectedParcel(client.getConnection());
+        client.getDispatcher().registerParser(coreExpectedParcel);
+
+        coreExpectedParcel.addExpected(ChannelParticipationRequest.class, addressedParcel -> {
+            client.send(new GeneralStatusMessage(0, "ok"));
+        });
+
+        coreExpectedParcel.addExpected(NewChannelResponse.class, addressedParcel -> {
+            System.out.println(addressedParcel.getMessageData(NewChannelResponse.class));
+        });
+
+        coreExpectedParcel.addExpected(GeneralStatusMessage.class, addressedParcel -> {
+            System.out.println(addressedParcel.getMessageData(GeneralStatusMessage.class));
+        });
+
+        coreExpectedParcel.addExpected(NotAuthorizedMessage.class, addressedParcel -> {
+            System.out.println("Not authorized");
+        });
+
         Scanner scanner = new Scanner(System.in);
 
         ExpectedParcel expectedParcel = new ExpectedParcel(client.getConnection());
@@ -43,30 +64,18 @@ public class Main {
             if (parts[0].equals("login")) {
                 LoginMessage loginMessage = new LoginMessage("test", "password", parts[1]);
 
-                expectedParcel.addEpectedParcel(GeneralStatusMessage.class, addressedParcel -> {
-                    System.out.println(addressedParcel.getMessageData(GeneralStatusMessage.class));
-                });
-
-                expectedParcel.expectResponse(3, TimeUnit.SECONDS, loginMessage);
+                coreExpectedParcel.expectResponse(3, TimeUnit.SECONDS, loginMessage);
 
             } else if (parts[0].equals("logout")) {
                 LogoutMessage logoutMessage = new LogoutMessage();
 
-                expectedParcel.addEpectedParcel(GeneralStatusMessage.class, addressedParcel -> {
-                    System.out.println(addressedParcel.getMessageData(GeneralStatusMessage.class));
-                });
-
-                expectedParcel.expectResponse(3, TimeUnit.SECONDS, logoutMessage);
+                coreExpectedParcel.expectResponse(3, TimeUnit.SECONDS, logoutMessage);
 
             } else if (parts[0].equals("time")) {
                 TimeRequest timeRequest = new TimeRequest();
 
-                expectedParcel.addEpectedParcel(TimeResponse.class, addressedParcel -> {
+                expectedParcel.addExpected(TimeResponse.class, addressedParcel -> {
                     System.out.println(addressedParcel.getMessageData(TimeResponse.class));
-                });
-
-                expectedParcel.addEpectedParcel(NotAuthorizedMessage.class, addressedParcel -> {
-                    System.out.println("Not authorized");
                 });
 
                 expectedParcel.expectResponse(3, TimeUnit.SECONDS, timeRequest);
@@ -74,15 +83,7 @@ public class Main {
                 DeviceProperties other = new DeviceProperties(parts[1], false, false);
                 NewChannelRequest channelRequest = new NewChannelRequest(new DeviceProperties[]{other}, "", "");
 
-                expectedParcel.addEpectedParcel(GeneralStatusMessage.class, addressedParcel -> {
-                    System.out.println(addressedParcel.getMessageData(GeneralStatusMessage.class));
-                });
-
-                expectedParcel.addEpectedParcel(NotAuthorizedMessage.class, addressedParcel -> {
-                    System.out.println("Not authorized");
-                });
-
-                expectedParcel.expectResponse(15, TimeUnit.SECONDS, channelRequest);
+                coreExpectedParcel.expectResponse(15, TimeUnit.SECONDS, channelRequest);
             } else if (parts[0].equals("exit")) {
                 break;
             }

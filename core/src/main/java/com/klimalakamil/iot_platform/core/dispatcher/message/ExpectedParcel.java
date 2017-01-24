@@ -2,6 +2,7 @@ package com.klimalakamil.iot_platform.core.dispatcher.message;
 
 import com.klimalakamil.iot_platform.core.connection.client.ClientConnection;
 import com.klimalakamil.iot_platform.core.dispatcher.AbstractParser;
+import com.klimalakamil.iot_platform.core.dispatcher.Dispatcher;
 import com.klimalakamil.iot_platform.core.message.AddressedParcel;
 import com.klimalakamil.iot_platform.core.message.MessageData;
 import com.klimalakamil.iot_platform.core.message.serializer.JsonSerializer;
@@ -39,7 +40,7 @@ public class ExpectedParcel implements AbstractParser<AddressedParcel> {
         addressedParcel = null;
     }
 
-    public void addEpectedParcel(Class<? extends MessageData> clazz, Consumer<AddressedParcel> consumer) {
+    public void addExpected(Class<? extends MessageData> clazz, Consumer<AddressedParcel> consumer) {
         expectedTree.put(clazz.getCanonicalName(), consumer);
     }
 
