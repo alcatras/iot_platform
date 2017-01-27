@@ -93,7 +93,6 @@ public class ClientWorker implements Runnable {
                 available = inputStream.available();
                 if (available > 0) {
                     activity = true;
-                    System.out.println(available);
                     while (bufferPosition + available >= CHUNK_SIZE) {
                         int remaining = CHUNK_SIZE - bufferPosition;
                         available -= inputStream.read(buffer, bufferPosition, remaining);
@@ -141,7 +140,7 @@ public class ClientWorker implements Runnable {
                 }
 
             } catch (IOException | InterruptedException e) {
-                logger.log(Level.WARNING, "Error occured when communicating with client: " + e.getMessage(), e);
+                logger.log(Level.FINEST, "Error occured when communicating with client: " + e.getMessage(), e);
                 break;
             }
         }

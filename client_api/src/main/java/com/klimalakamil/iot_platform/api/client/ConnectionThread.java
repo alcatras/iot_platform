@@ -102,7 +102,7 @@ public class ConnectionThread implements Runnable {
 
                 try {
                     byte[] data;
-                    while ((data = outputQueue.poll(50, TimeUnit.MICROSECONDS)) != null) {
+                    while (running.get() && (data = outputQueue.poll(50, TimeUnit.MICROSECONDS)) != null) {
                         outputStream.write(data);
                     }
                 } catch (InterruptedException e) {
@@ -113,5 +113,12 @@ public class ConnectionThread implements Runnable {
                 logger.log(Level.WARNING, e.getMessage(), e);
             }
         }
+    }
+
+    public void close() {
+        running.set(false);
+        try {
+            socket.close();
+        } catch (IOException ignored) {}
     }
 }

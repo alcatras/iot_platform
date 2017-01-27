@@ -95,4 +95,8 @@ public class Client implements Consumer<Parcel> {
     public void send(MessageData messageData) {
         connectionThread.send(messageData);
     }
+
+    public void close() {
+        connectionThread.close();
+    }
 }

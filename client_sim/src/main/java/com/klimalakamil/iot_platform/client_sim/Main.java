@@ -47,6 +47,7 @@ public class Main implements ClientListener {
 
                 client.send(channelRequest);
             } else if (parts[0].equals("exit")) {
+                client.close();
                 return;
             }
         }

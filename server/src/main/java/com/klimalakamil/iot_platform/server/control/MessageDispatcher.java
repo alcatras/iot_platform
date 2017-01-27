@@ -18,12 +18,12 @@ public class MessageDispatcher extends BufferedDispatcher<AddressedParcel> {
 
     @Override
     public void dispatchFailed(AddressedParcel data) {
-        logger.log(Level.INFO, "Failed to dispatch message :" + data.getParcel().getTag() + ", from: " + data.getWorker().getContext().getSocket());
+        //logger.log(Level.INFO, "Failed to dispatch message :" + data.getParcel().getTag() + ", from: " + data.getWorker().getContext().getSocket());
     }
 
     @Override
     public void dispatch(AddressedParcel data) {
-        logger.log(Level.INFO, "Dispatching new message: " + data.getParcel().getTag());
+        //logger.log(Level.INFO, "Dispatching new message: " + data.getParcel().getTag());
         super.dispatch(data);
     }
 }
