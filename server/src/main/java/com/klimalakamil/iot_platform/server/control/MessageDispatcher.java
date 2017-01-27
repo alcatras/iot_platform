@@ -1,6 +1,5 @@
 package com.klimalakamil.iot_platform.server.control;
 
-import com.klimalakamil.iot_platform.core.message.messagedata.auth.LoginMessage;
 import com.klimalakamil.iot_platform.server.generic.BufferedDispatcher;
 
 import java.util.logging.Level;

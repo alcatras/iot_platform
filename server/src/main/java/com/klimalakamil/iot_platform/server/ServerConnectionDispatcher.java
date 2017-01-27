@@ -32,11 +32,11 @@ public class ServerConnectionDispatcher extends Dispatcher<ClientContext> {
             long time = System.currentTimeMillis();
 
             byte[] bytes = new byte[2];
-            while(System.currentTimeMillis() - time < 1000) {
-                if(inputStream.available() >= 2) {
+            while (System.currentTimeMillis() - time < 1000) {
+                if (inputStream.available() >= 2) {
                     inputStream.read(bytes, 0, 2);
 
-                    int id = bytes[0] & (((int)bytes[1]) << 4);
+                    int id = bytes[0] & (((int) bytes[1]) << 4);
 
                     logger.log(Level.INFO, "Read connection id of " + id + ": " + data.getSocket().toString());
 

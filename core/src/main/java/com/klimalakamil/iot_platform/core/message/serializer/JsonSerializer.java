@@ -2,7 +2,6 @@ package com.klimalakamil.iot_platform.core.message.serializer;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.MalformedJsonException;
 import com.klimalakamil.iot_platform.core.message.MessageData;
 import com.klimalakamil.iot_platform.core.message.Parcel;
 

@@ -1,22 +1,11 @@
 package com.klimalakamil.iot_platform.server.control.service;
 
-import com.klimalakamil.iot_platform.core.dispatcher.Dispatcher;
-import com.klimalakamil.iot_platform.core.dispatcher.message.ExpectedParcel;
-import com.klimalakamil.iot_platform.core.message.MessageData;
-import com.klimalakamil.iot_platform.core.message.messagedata.GeneralStatusMessage;
-import com.klimalakamil.iot_platform.core.message.messagedata.channel.*;
-import com.klimalakamil.iot_platform.core.message.serializer.JsonSerializer;
-import com.klimalakamil.iot_platform.server.control.ClientWorker;
 import com.klimalakamil.iot_platform.server.control.ConnectionRegistry;
 import com.klimalakamil.iot_platform.server.database.mappers.DeviceMapper;
 import com.klimalakamil.iot_platform.server.database.mappers.MapperRegistry;
 import com.klimalakamil.iot_platform.server.database.mappers.SessionMapper;
 import com.klimalakamil.iot_platform.server.database.models.Device;
 import com.klimalakamil.iot_platform.server.database.models.Session;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by kamil on 26.01.17.

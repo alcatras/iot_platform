@@ -1,12 +1,11 @@
 package com.klimalakamil.iot_platform.api.client;
+
 import com.klimalakamil.iot_platform.core.message.MessageData;
 import com.klimalakamil.iot_platform.core.message.Parcel;
 import com.klimalakamil.iot_platform.core.message.messagedata.GeneralStatusMessage;
 import com.klimalakamil.iot_platform.core.message.messagedata.PingMessage;
 import com.klimalakamil.iot_platform.core.message.messagedata.channel.ChannelParticipationRequest;
 import com.klimalakamil.iot_platform.core.message.messagedata.channel.NewChannelResponse;
-import com.klimalakamil.iot_platform.core.message.processors.TextMessageBuilder;
-import com.klimalakamil.iot_platform.core.message.serializer.JsonSerializer;
 import com.klimalakamil.iot_platform.core.v2.socket.Sockets;
 
 import javax.net.ssl.*;
@@ -17,12 +16,7 @@ import java.net.Socket;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -81,16 +75,16 @@ public class Client implements Consumer<Parcel> {
 
         String tag = parcel.getTag();
 
-        if(tag.equals(PingMessage.class.getCanonicalName())) {
+        if (tag.equals(PingMessage.class.getCanonicalName())) {
             connectionThread.send(new PingMessage());
 
-        } else if(tag.equals(GeneralStatusMessage.class.getCanonicalName())) {
+        } else if (tag.equals(GeneralStatusMessage.class.getCanonicalName())) {
             listener.onStatusMessage(parcel.getMessageData(GeneralStatusMessage.class));
 
-        } else if(tag.equals(ChannelParticipationRequest.class.getCanonicalName())) {
+        } else if (tag.equals(ChannelParticipationRequest.class.getCanonicalName())) {
             listener.onNewChannelRequest(parcel.getMessageData(ChannelParticipationRequest.class));
 
-        } else if(tag.equals(NewChannelResponse.class.getCanonicalName())) {
+        } else if (tag.equals(NewChannelResponse.class.getCanonicalName())) {
             listener.onNewChannelResponse(parcel.getMessageData(NewChannelResponse.class));
 
         } else {

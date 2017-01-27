@@ -3,8 +3,6 @@ package com.klimalakamil.iot_platform.api.client;
 import com.klimalakamil.iot_platform.core.message.MessageData;
 import com.klimalakamil.iot_platform.core.message.Parcel;
 import com.klimalakamil.iot_platform.core.message.serializer.JsonSerializer;
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
-import jdk.nashorn.internal.ir.Block;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -42,7 +40,7 @@ public class ConnectionThread implements Runnable {
     }
 
     public boolean send(MessageData messageData) {
-        if(running.get()) {
+        if (running.get()) {
             try {
                 outputQueue.offer(serializer.serialize(messageData), 500, TimeUnit.MILLISECONDS);
             } catch (Exception e) {
@@ -64,7 +62,7 @@ public class ConnectionThread implements Runnable {
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
 
-            outputStream.write(new byte[] {0, 0} );
+            outputStream.write(new byte[]{0, 0});
         } catch (IOException e) {
             logger.log(Level.WARNING, "Unable to initialize connection: " + e.getMessage(), e);
             return;
@@ -76,7 +74,7 @@ public class ConnectionThread implements Runnable {
         byte[] inputBuffer = new byte[CHUNK_SIZE];
         ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
 
-        while(running.get()) {
+        while (running.get()) {
             try {
                 available = inputStream.available();
                 if (available > 0) {

@@ -3,7 +3,6 @@ package com.klimalakamil.iot_platform.core.v2.socket;
 import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;

@@ -2,7 +2,9 @@ package com.klimalakamil.iot_platform.server.control;
 
 import com.klimalakamil.iot_platform.server.generic.Parser;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by kamil on 26.01.17.
@@ -24,7 +26,7 @@ public class ExpectedMessage implements Parser<AddressedParcel> {
         int id = data.getParcel().getId();
 
         OnMessageReceivedListener listener = expectedList.get(id);
-        if(listener != null) {
+        if (listener != null) {
             listener.receive(data);
             return true;
         }

@@ -21,12 +21,12 @@ public enum GeneralCodes {
     int code;
     String explanation;
 
-    public String explain() {
-        return "[" + code + "] " + explanation;
-    }
-
     GeneralCodes(int code, String explanation) {
         this.code = code;
         this.explanation = explanation;
+    }
+
+    public String explain() {
+        return "[" + code + "] " + explanation;
     }
 }

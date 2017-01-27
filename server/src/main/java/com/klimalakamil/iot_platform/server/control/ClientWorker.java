@@ -13,7 +13,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -50,7 +49,7 @@ public class ClientWorker implements Runnable {
     }
 
     public boolean send(MessageData messageData) {
-        if(running.get()) {
+        if (running.get()) {
             try {
                 if (!messages.offer(serializer.serialize(messageData), 100, TimeUnit.MILLISECONDS)) {
                     logger.log(Level.WARNING, "Unable to send message, queue full");
@@ -117,22 +116,22 @@ public class ClientWorker implements Runnable {
                     }
                 }
 
-                while(!messages.isEmpty()) {
+                while (!messages.isEmpty()) {
                     activity = true;
                     outputStream.write(messages.poll(1, TimeUnit.MILLISECONDS));
                 }
 
-                if(activity) {
+                if (activity) {
                     lastMessageTime = System.currentTimeMillis();
                 } else {
                     Thread.sleep(4);
                 }
 
-                if(++checkAlive > 5 * 250) {
+                if (++checkAlive > 5 * 250) {
                     outputStream.write(serializer.serialize(new PingMessage()));
                     checkAlive = 0;
                     long delta = System.currentTimeMillis() - lastMessageTime;
-                    if(delta > 17500) {
+                    if (delta > 17500) {
                         logger.log(Level.INFO, "Connection timed out after " + delta + "ms: " + context.getSocket());
                         running.set(false);
 
@@ -149,7 +148,8 @@ public class ClientWorker implements Runnable {
 
         try {
             socket.close();
-        } catch (IOException ignored) { }
+        } catch (IOException ignored) {
+        }
 
         ConnectionRegistry.getInstance().unregister(context.getUniqueId());
         logger.log(Level.INFO, "Closed control thread for connection: " + context.getSocket());

@@ -2,11 +2,9 @@ package com.klimalakamil.iot_platform.client_sim;
 
 import com.klimalakamil.iot_platform.api.client.Client;
 import com.klimalakamil.iot_platform.api.client.ClientListener;
-import com.klimalakamil.iot_platform.core.dispatcher.message.ExpectedParcel;
 import com.klimalakamil.iot_platform.core.message.Parcel;
 import com.klimalakamil.iot_platform.core.message.messagedata.GeneralCodes;
 import com.klimalakamil.iot_platform.core.message.messagedata.GeneralStatusMessage;
-import com.klimalakamil.iot_platform.core.message.messagedata.PingMessage;
 import com.klimalakamil.iot_platform.core.message.messagedata.auth.LoginMessage;
 import com.klimalakamil.iot_platform.core.message.messagedata.auth.LogoutMessage;
 import com.klimalakamil.iot_platform.core.message.messagedata.channel.ChannelParticipationRequest;
@@ -15,12 +13,9 @@ import com.klimalakamil.iot_platform.core.message.messagedata.channel.NewChannel
 import com.klimalakamil.iot_platform.core.message.messagedata.channel.NewChannelResponse;
 import com.klimalakamil.iot_platform.core.message.messagedata.time.TimeRequest;
 import com.klimalakamil.iot_platform.core.message.messagedata.time.TimeResponse;
-import org.apache.commons.cli.ParseException;
 
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ekamkli on 2016-11-19.
@@ -67,7 +62,7 @@ public class Main implements ClientListener {
     public void onStatusMessage(GeneralStatusMessage generalStatusMessage) {
         System.out.println(generalStatusMessage.getCode().explain());
 
-        if(generalStatusMessage.getCode() == GeneralCodes.CONNECTION_TIME_OUT) {
+        if (generalStatusMessage.getCode() == GeneralCodes.CONNECTION_TIME_OUT) {
             System.exit(0);
         }
     }
@@ -86,7 +81,7 @@ public class Main implements ClientListener {
     public void parseMessage(Parcel parcel) {
         System.out.println("Received: " + parcel.getTag());
 
-        if(parcel.getTag().equals(TimeResponse.class.getCanonicalName())) {
+        if (parcel.getTag().equals(TimeResponse.class.getCanonicalName())) {
             System.out.println(parcel.getMessageData(TimeResponse.class).getTime());
         }
     }

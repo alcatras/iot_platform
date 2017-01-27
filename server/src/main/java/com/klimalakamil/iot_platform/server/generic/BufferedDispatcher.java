@@ -1,6 +1,7 @@
 package com.klimalakamil.iot_platform.server.generic;
 
-import java.util.concurrent.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Created by kamil on 26.01.17.

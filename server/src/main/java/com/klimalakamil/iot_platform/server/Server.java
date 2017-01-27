@@ -6,12 +6,11 @@ import com.klimalakamil.iot_platform.server.database.DatabaseHelper;
 import com.klimalakamil.iot_platform.server.database.mappers.DeviceMapper;
 import com.klimalakamil.iot_platform.server.database.mappers.SessionMapper;
 import com.klimalakamil.iot_platform.server.database.mappers.UserMapper;
-import com.klimalakamil.iot_platform.server.database.models.Device;
-import com.klimalakamil.iot_platform.server.database.models.User;
 
 import java.io.IOException;
-import java.net.*;
-import java.sql.SQLClientInfoException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,7 +48,7 @@ public class Server {
         serverConnectionDispatcher.registerParser(controlConnectionHandler);
 
         logger.log(Level.INFO, "Starting server");
-        while(running) {
+        while (running) {
             Socket clientSocket = null;
             try {
                 clientSocket = socket.accept();
@@ -64,11 +63,11 @@ public class Server {
         }
     }
 
-    public void stop() {
-        running = false;
-    }
-
     public static void main(String[] args) throws SQLException {
         new Server();
+    }
+
+    public void stop() {
+        running = false;
     }
 }

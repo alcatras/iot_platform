@@ -8,8 +8,8 @@ import java.util.Map;
  * Created by kamil on 26.01.17.
  */
 public abstract class Registry<T> {
-    private Map<String, T> collection;
     private static Object mutex = new Object();
+    private Map<String, T> collection;
 
     protected Registry() {
         collection = Collections.synchronizedMap(new HashMap<String, T>());
