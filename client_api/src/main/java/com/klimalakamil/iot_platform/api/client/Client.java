@@ -1,62 +1,104 @@
 package com.klimalakamil.iot_platform.api.client;
-
-import com.klimalakamil.iot_platform.core.connection.client.ClientConnection;
-import com.klimalakamil.iot_platform.core.connection.client.ClientConnectionFactory;
-import com.klimalakamil.iot_platform.core.dispatcher.Dispatcher;
-import com.klimalakamil.iot_platform.core.message.AddressedParcel;
 import com.klimalakamil.iot_platform.core.message.MessageData;
+import com.klimalakamil.iot_platform.core.message.Parcel;
+import com.klimalakamil.iot_platform.core.message.messagedata.GeneralStatusMessage;
+import com.klimalakamil.iot_platform.core.message.messagedata.PingMessage;
+import com.klimalakamil.iot_platform.core.message.messagedata.channel.ChannelParticipationRequest;
+import com.klimalakamil.iot_platform.core.message.messagedata.channel.NewChannelResponse;
 import com.klimalakamil.iot_platform.core.message.processors.TextMessageBuilder;
 import com.klimalakamil.iot_platform.core.message.serializer.JsonSerializer;
+import com.klimalakamil.iot_platform.core.v2.socket.Sockets;
 
+import javax.net.ssl.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.net.Socket;
+import java.security.KeyStore;
+import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Created by ekamkli on 2016-11-19.
  */
-public class Client {
+public class Client implements Consumer<Parcel> {
 
     private Logger logger = Logger.getLogger(Client.class.getName());
 
-    private ClientConnection clientConnection;
-    private Dispatcher<AddressedParcel> dispatcher;
-    private JsonSerializer serializer;
+    private ClientListener listener;
+    private ConnectionThread connectionThread;
 
-    public Client(InputStream serverPKS, InputStream clientPKS, char[] password) {
-        try {
-            clientConnection = ClientConnectionFactory.createConnection(
-                    InetAddress.getByName("localhost"),
-                    25535
-            );
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, e.getMessage(), e);
+    public Client(ClientListener listener, InetAddress address, int port) throws IOException {
+        this.listener = listener;
+
+        Socket socket = Sockets.newClientSocket(address, port);
+        connectionThread = new ConnectionThread(socket, this);
+        new Thread(connectionThread).start();
+    }
+
+    public Client(ClientListener listener, InetAddress address, int port, InputStream serverPKS, InputStream clientPKS, char[] pwd) throws Exception {
+        this.listener = listener;
+
+        SecureRandom secureRandom = new SecureRandom();
+        secureRandom.nextInt();
+
+        KeyStore serverKeyStore = KeyStore.getInstance("JKS");
+        serverKeyStore.load(serverPKS, "public".toCharArray());
+
+        KeyStore clientKeyStore = KeyStore.getInstance("JKS");
+        clientKeyStore.load(clientPKS, pwd);
+
+        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance("SunX509");
+        trustManagerFactory.init(serverKeyStore);
+
+        KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
+
+        keyManagerFactory.init(clientKeyStore, pwd);
+
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), secureRandom);
+
+        Arrays.fill(pwd, Character.MIN_VALUE);
+
+        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+
+        SSLSocket socket = (SSLSocket) sslSocketFactory.createSocket(address, port);
+        socket.startHandshake();
+
+        connectionThread = new ConnectionThread(socket, this);
+        new Thread(connectionThread).start();
+    }
+
+    @Override
+    public void accept(Parcel parcel) {
+
+        String tag = parcel.getTag();
+
+        if(tag.equals(PingMessage.class.getCanonicalName())) {
+            connectionThread.send(new PingMessage());
+
+        } else if(tag.equals(GeneralStatusMessage.class.getCanonicalName())) {
+            listener.onStatusMessage(parcel.getMessageData(GeneralStatusMessage.class));
+
+        } else if(tag.equals(ChannelParticipationRequest.class.getCanonicalName())) {
+            listener.onNewChannelRequest(parcel.getMessageData(ChannelParticipationRequest.class));
+
+        } else if(tag.equals(NewChannelResponse.class.getCanonicalName())) {
+            listener.onNewChannelResponse(parcel.getMessageData(NewChannelResponse.class));
+
+        } else {
+            listener.parseMessage(parcel);
         }
-
-        dispatcher = new Dispatcher<>();
-        TextMessageBuilder messageBuilder = new TextMessageBuilder(clientConnection, dispatcher);
-        clientConnection.getReceiveDispatcher().registerParser(messageBuilder);
-
-        serializer = new JsonSerializer();
-
-        clientConnection.start();
     }
 
     public void send(MessageData messageData) {
-        clientConnection.send(serializer.serialize(messageData));
-    }
-
-    public void close() {
-        clientConnection.close();
-    }
-
-    public ClientConnection getConnection() {
-        return clientConnection;
-    }
-
-    public Dispatcher<AddressedParcel> getDispatcher() {
-        return dispatcher;
+        connectionThread.send(messageData);
     }
 }

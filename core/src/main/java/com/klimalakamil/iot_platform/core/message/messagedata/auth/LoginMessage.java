@@ -40,4 +40,13 @@ public class LoginMessage implements MessageData {
     public void setDevice(String device) {
         this.device = device;
     }
+
+    @Override
+    public String toString() {
+        return "LoginMessage{" +
+                "username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", device='" + device + '\'' +
+                '}';
+    }
 }

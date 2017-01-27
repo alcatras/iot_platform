@@ -1,6 +1,6 @@
 package com.klimalakamil.iot_platform.server.database.mappers;
 
-import com.klimalakamil.iot_platform.core.connection.client.ClientConnection;
+import com.klimalakamil.iot_platform.server.control.ClientWorker;
 import com.klimalakamil.iot_platform.server.database.DatabaseHelper;
 import com.klimalakamil.iot_platform.server.database.models.Device;
 import com.klimalakamil.iot_platform.server.database.models.Session;
@@ -93,9 +93,9 @@ public class SessionMapper extends Mapper<Session> {
         return getOne(resultSet);
     }
 
-    public Session get(ClientConnection connection) {
+    public Session get(ClientWorker worker) {
         ResultSet resultSet = databaseHelper.executeQueryForResult("SELECT * FROM " + getTableName(Session.class) +
-                " WHERE ip = '" + connection.getAddress().getHostAddress() + "' AND control_port = '" + connection.getPort() + "' LIMIT 1");
+                " WHERE ip = '" + worker.getAddress().getHostAddress() + "' AND control_port = '" + worker.getPort() + "' LIMIT 1");
 
         return getOne(resultSet);
     }

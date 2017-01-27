@@ -20,8 +20,10 @@ public class Dispatcher<T> {
 
     public boolean dispatch(T message) {
         for (AbstractParser<T> parser : parsers) {
-            if (parser.parse(message))
+            if (parser.parse(message)) {
+                logger.log(Level.INFO, "Message parsed by: " + parser.getClass().getSimpleName());
                 return true;
+            }
         }
         return false;
     }

@@ -3,7 +3,6 @@ package com.klimalakamil.iot_platform.core.message.processors;
 import com.klimalakamil.iot_platform.core.connection.client.BytePacket;
 import com.klimalakamil.iot_platform.core.connection.client.ClientConnection;
 import com.klimalakamil.iot_platform.core.dispatcher.Dispatcher;
-import com.klimalakamil.iot_platform.core.message.AddressedParcel;
 import com.klimalakamil.iot_platform.core.message.Parcel;
 import com.klimalakamil.iot_platform.core.message.serializer.JsonSerializer;
 

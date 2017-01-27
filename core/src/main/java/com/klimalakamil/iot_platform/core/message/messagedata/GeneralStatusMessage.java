@@ -7,32 +7,17 @@ import com.klimalakamil.iot_platform.core.message.MessageData;
  */
 public class GeneralStatusMessage implements MessageData {
 
-    private int statusId;
-    private String status;
+    private GeneralCodes code;
 
-    public GeneralStatusMessage(int statusId, String status) {
-        this.statusId = statusId;
-        this.status = status;
+    public GeneralStatusMessage(GeneralCodes code) {
+        this.code = code;
     }
 
-    public int getStatusId() {
-        return statusId;
+    public GeneralCodes getCode() {
+        return code;
     }
 
-    public void setStatusId(int statusId) {
-        this.statusId = statusId;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    @Override
-    public String toString() {
-        return "Status code: " + statusId + " (" + status + ")";
+    public void setCode(GeneralCodes code) {
+        this.code = code;
     }
 }

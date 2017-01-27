@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 /**
  * Created by kamil on 15.01.17.
  */
-public class PasswordHelper {
+public abstract class PasswordHelper {
 
     private static final Random RANDOM = new SecureRandom();
     private static final int ITERATIONS = 7500;

@@ -1,68 +1,74 @@
 package com.klimalakamil.iot_platform.server;
 
-
-import com.klimalakamil.iot_platform.core.dispatcher.Dispatcher;
-import com.klimalakamil.iot_platform.core.message.AddressedParcel;
-import com.klimalakamil.iot_platform.server.connection.ServerConnection;
-import com.klimalakamil.iot_platform.server.connection.ServerConnectionFactory;
-import com.klimalakamil.iot_platform.server.core_service.AuthenticationService;
-import com.klimalakamil.iot_platform.server.core_service.ChannelService;
-import com.klimalakamil.iot_platform.server.core_service.RoughTimeService;
+import com.klimalakamil.iot_platform.core.v2.socket.Sockets;
+import com.klimalakamil.iot_platform.server.control.ControlConnectionHandler;
 import com.klimalakamil.iot_platform.server.database.DatabaseHelper;
 import com.klimalakamil.iot_platform.server.database.mappers.DeviceMapper;
 import com.klimalakamil.iot_platform.server.database.mappers.SessionMapper;
 import com.klimalakamil.iot_platform.server.database.mappers.UserMapper;
+import com.klimalakamil.iot_platform.server.database.models.Device;
+import com.klimalakamil.iot_platform.server.database.models.User;
 
-import java.net.InetAddress;
+import java.io.IOException;
+import java.net.*;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Created by ekamkli on 2016-11-19.
+ * Created by kamil on 26.01.17.
  */
-// TODO: add thread pool
 public class Server {
 
     private Logger logger = Logger.getLogger(Server.class.getName());
-    private ServerConnection serverConnection;
+    private ServerSocket socket;
 
-    private Server() throws Exception {
+    private boolean running = true;
+
+    private Server() throws SQLException {
+        try {
+            socket = Sockets.newServerSocket(InetAddress.getByName("localhost"), 25535, 10);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Unable to create socket: " + e.getMessage(), e);
+        }
+
         // Create database
-        DatabaseHelper databaseHelper = new DatabaseHelper("jdbc:MySql://localhost:3306/java2016", "tester", "password");
+        DatabaseHelper databaseHelper = new DatabaseHelper("jdbc:MySql://localhost:3306/java2016", "test", "password");
 
         // Create mappers (they're auto registered)
         new UserMapper(databaseHelper);
         new DeviceMapper(databaseHelper);
         new SessionMapper(databaseHelper);
 
-        // Create connection
-        serverConnection = ServerConnectionFactory.createConnection(
-                InetAddress.getByName("localhost"),
-                25535,
-                10
-        );
+        // Create connection dispatcher
+        ServerConnectionDispatcher serverConnectionDispatcher = new ServerConnectionDispatcher();
 
-        // Create core services dispatcher
-        Dispatcher<AddressedParcel> controlDispatcher = new Dispatcher<>();
-        serverConnection.registerListener(new ServerListener(controlDispatcher));
+        // Create control plane handlers
+        ControlConnectionHandler controlConnectionHandler = new ControlConnectionHandler();
+        serverConnectionDispatcher.registerParser(controlConnectionHandler);
 
-        // Create core services
-        AuthenticationService authenticationService = new AuthenticationService();
-        controlDispatcher.registerParser(authenticationService);
+        logger.log(Level.INFO, "Starting server");
+        while(running) {
+            Socket clientSocket = null;
+            try {
+                clientSocket = socket.accept();
+            } catch (IOException e) {
+                logger.log(Level.WARNING, "Failed to open client connection: " + e.getMessage(), e);
+                continue;
+            }
+            logger.log(Level.INFO, "New client connection from: " + clientSocket);
+            ClientContext clientContext = new ClientContext(clientSocket);
 
-        RoughTimeService roughTimeService = new RoughTimeService();
-        controlDispatcher.registerParser(roughTimeService);
-
-        ChannelService channelService = new ChannelService(controlDispatcher);
-        controlDispatcher.registerParser(channelService);
-
-        // Start server socket
-        serverConnection.start();
+            serverConnectionDispatcher.dispatch(clientContext);
+        }
     }
 
-    public static void main(String[] args) throws Exception {
-        Logger logger = Logger.getLogger(Server.class.getName() + "::main");
-        logger.log(Level.INFO, "Starting server");
+    public void stop() {
+        running = false;
+    }
+
+    public static void main(String[] args) throws SQLException {
         new Server();
     }
 }

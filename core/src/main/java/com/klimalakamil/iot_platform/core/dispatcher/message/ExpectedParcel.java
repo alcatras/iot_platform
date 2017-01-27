@@ -2,8 +2,6 @@ package com.klimalakamil.iot_platform.core.dispatcher.message;
 
 import com.klimalakamil.iot_platform.core.connection.client.ClientConnection;
 import com.klimalakamil.iot_platform.core.dispatcher.AbstractParser;
-import com.klimalakamil.iot_platform.core.dispatcher.Dispatcher;
-import com.klimalakamil.iot_platform.core.message.AddressedParcel;
 import com.klimalakamil.iot_platform.core.message.MessageData;
 import com.klimalakamil.iot_platform.core.message.serializer.JsonSerializer;
 
@@ -81,6 +79,7 @@ public class ExpectedParcel implements AbstractParser<AddressedParcel> {
             return false;
 
         synchronized (this) {
+            System.out.println(message.getParcel().getTag() + ">>>>>>>>>>>>>>.");
             for (String tag : expectedTree.keySet()) {
                 if (tag.equals(message.getParcel().getTag())) {
                     addressedParcel = message;

@@ -1,22 +1,28 @@
-package com.klimalakamil.iot_platform.server.core_service;
+package com.klimalakamil.iot_platform.server.control.service;
 
-import com.klimalakamil.iot_platform.core.dispatcher.AbstractParser;
-import com.klimalakamil.iot_platform.core.message.AddressedParcel;
 import com.klimalakamil.iot_platform.core.message.MessageData;
+import com.klimalakamil.iot_platform.server.control.AddressedParcel;
+import com.klimalakamil.iot_platform.server.generic.Parser;
 
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Created by kamil on 18.01.17.
+ * Created by kamil on 26.01.17.
  */
-public abstract class CoreService implements AbstractParser<AddressedParcel> {
+public class Service implements Parser<AddressedParcel> {
+
+    protected Logger logger;
 
     private Map<String, Consumer<AddressedParcel>> actions;
 
-    public CoreService(Class<? extends CoreService> clazz) {
-        CoreServiceRegistry.getInstance().register(clazz, this);
+    public Service(Class<? extends Service> clazz) {
+        ServiceRegistry.getInstance().register(clazz, this);
+        logger = Logger.getLogger(clazz.getCanonicalName());
+        logger.log(Level.INFO, "Starting " + clazz.getSimpleName());
         actions = new TreeMap<>();
     }
 
