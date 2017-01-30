@@ -123,6 +123,7 @@ public class ConnectionThread implements Runnable {
         running.set(false);
         try {
             socket.close();
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
     }
 }

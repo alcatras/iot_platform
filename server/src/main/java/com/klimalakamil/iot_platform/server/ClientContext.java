@@ -27,6 +27,14 @@ public class ClientContext {
         return CONTROL_PLANE_ID;
     }
 
+    public static String getUniqueId(Socket socket) {
+        return getUniqueId(socket.getInetAddress(), socket.getPort());
+    }
+
+    public static String getUniqueId(InetAddress address, int port) {
+        return address.getHostAddress() + ":" + port;
+    }
+
     public Socket getSocket() {
         return socket;
     }
@@ -57,13 +65,5 @@ public class ClientContext {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public static String getUniqueId(Socket socket) {
-        return getUniqueId(socket.getInetAddress(), socket.getPort());
-    }
-
-    public static String getUniqueId(InetAddress address, int port) {
-        return address.getHostAddress() + ":" + port;
     }
 }

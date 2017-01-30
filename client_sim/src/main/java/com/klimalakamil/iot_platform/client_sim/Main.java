@@ -44,7 +44,8 @@ public class Main implements ClientListener {
 
             } else if (parts[0].equals("channel")) {
                 DeviceProperties other = new DeviceProperties(parts[1], false, false);
-                NewChannelRequest channelRequest = new NewChannelRequest("channel0", new DeviceProperties[]{other}, "", "");
+                NewChannelRequest channelRequest = new NewChannelRequest("channel0", new DeviceProperties[]{other}, "",
+                        "");
 
                 client.send(channelRequest);
             } else if (parts[0].equals("exit")) {
@@ -71,7 +72,8 @@ public class Main implements ClientListener {
 
     @Override
     public boolean acceptChannelRequest(ChannelParticipationRequest request) {
-        System.out.println("New channel [" + request.getName() + "] request from: " + request.getRequester() + ", accepting");
+        System.out.println(
+                "New channel [" + request.getName() + "] request from: " + request.getRequester() + ", accepting");
         return true;
     }
 

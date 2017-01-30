@@ -86,13 +86,17 @@ public class Client implements Consumer<Parcel> {
             ChannelParticipationRequest request = parcel.getMessageData(ChannelParticipationRequest.class);
             boolean state = listener.acceptChannelRequest(request);
 
-            connectionThread.send(new GeneralStatusMessage(state ? GeneralCodes.CHANNEL_ACCEPT : GeneralCodes.CHANNEL_REFUSE), parcel.getId());
+            connectionThread.send(
+                    new GeneralStatusMessage(state ? GeneralCodes.CHANNEL_ACCEPT : GeneralCodes.CHANNEL_REFUSE),
+                    parcel.getId());
 
         } else if (tag.equals(NewChannelResponse.class.getCanonicalName())) {
             NewChannelResponse newChannelResponse = parcel.getMessageData(NewChannelResponse.class);
             boolean state = listener.acceptNewChannel(newChannelResponse);
 
-            connectionThread.send(new GeneralStatusMessage(state ? GeneralCodes.CHANNEL_ACCEPT : GeneralCodes.CHANNEL_REFUSE), parcel.getId());
+            connectionThread.send(
+                    new GeneralStatusMessage(state ? GeneralCodes.CHANNEL_ACCEPT : GeneralCodes.CHANNEL_REFUSE),
+                    parcel.getId());
 
         } else {
             listener.parseMessage(parcel);

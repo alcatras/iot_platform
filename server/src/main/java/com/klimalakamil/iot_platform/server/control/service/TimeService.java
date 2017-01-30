@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
  */
 public class TimeService extends Service {
 
-    AuthenticationService authenticationService = (AuthenticationService) ServiceRegistry.getInstance().get(AuthenticationService.class);
+    AuthenticationService authenticationService = (AuthenticationService) ServiceRegistry.getInstance().get(
+            AuthenticationService.class);
 
     public TimeService() {
         super(TimeService.class);

@@ -7,8 +7,8 @@ import com.klimalakamil.iot_platform.server.generic.Registry;
  */
 public class ConnectionRegistry extends Registry<ClientWorker> {
 
-    private static ConnectionRegistry instance;
     private static final Object lock = new Object();
+    private static ConnectionRegistry instance;
 
     private ConnectionRegistry() {
         super();

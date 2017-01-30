@@ -17,7 +17,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -139,7 +138,8 @@ public class ClientWorker implements Runnable {
                         logger.log(Level.INFO, "Connection timed out after " + delta + "ms: " + context.getSocket());
                         running.set(false);
 
-                        outputStream.write(serializer.serialize(new GeneralStatusMessage(GeneralCodes.CONNECTION_TIME_OUT)));
+                        outputStream.write(
+                                serializer.serialize(new GeneralStatusMessage(GeneralCodes.CONNECTION_TIME_OUT)));
                         outputStream.flush();
                     }
                 }

@@ -51,7 +51,8 @@ public abstract class Mapper<T extends Model> {
     }
 
     protected String getUpdateQueryDates(Model model) {
-        return "created_at = '" + model.getDateCreated().format(formatter) + "', updated_at = '" + model.getDateUpdated().format(formatter) + "'";
+        return "created_at = '" + model.getDateCreated().format(
+                formatter) + "', updated_at = '" + model.getDateUpdated().format(formatter) + "'";
     }
 
     protected List<T> getAll(ResultSet resultSet) {

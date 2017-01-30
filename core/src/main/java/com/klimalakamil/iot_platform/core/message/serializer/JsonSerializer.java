@@ -5,7 +5,6 @@ import com.google.gson.JsonSyntaxException;
 import com.klimalakamil.iot_platform.core.message.MessageData;
 import com.klimalakamil.iot_platform.core.message.Parcel;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,7 +21,8 @@ public class JsonSerializer {
     }
 
     public byte[] serialize(MessageData messageData, long id) {
-        Parcel parcel = new Parcel(messageData.getClass().getCanonicalName(), id, gson.toJson(messageData).getBytes(), gson);
+        Parcel parcel = new Parcel(messageData.getClass().getCanonicalName(), id, gson.toJson(messageData).getBytes(),
+                gson);
         return (gson.toJson(parcel) + '\n').getBytes();
     }
 

@@ -37,21 +37,25 @@ public class AuthenticationService extends Service {
             LoginMessage data = addressedParcel.getParcel().getMessageData(LoginMessage.class);
             User user = userMapper.get(data.getUsername());
 
-            if (user != null && PasswordHelper.checkPassword(data.getPassword().toCharArray(), user.getSalt(), user.getPasswordDigest())) {
+            if (user != null && PasswordHelper.checkPassword(data.getPassword().toCharArray(), user.getSalt(),
+                    user.getPasswordDigest())) {
                 Device device = deviceMapper.get(user, data.getDevice());
                 if (device == null) {
                     addressedParcel.sendBack(new GeneralStatusMessage(GeneralCodes.INVALID_DEVICE));
-                    logger.log(Level.INFO, "Failed login attempt: device do not exists: " + data.getDevice() + ", user: " + user);
+                    logger.log(Level.INFO,
+                            "Failed login attempt: device do not exists: " + data.getDevice() + ", user: " + user);
                 } else {
                     Session session = sessionMapper.get(device);
                     ClientWorker worker = addressedParcel.getWorker();
                     if (session == null) {
-                        session = new Session(device, worker.getAddress(), worker.getPort(), LocalDateTime.now().plus(14, ChronoUnit.DAYS));
+                        session = new Session(device, worker.getAddress(), worker.getPort(),
+                                LocalDateTime.now().plus(14, ChronoUnit.DAYS));
                         sessionMapper.insert(session);
                         addressedParcel.sendBack(new GeneralStatusMessage(GeneralCodes.OK));
                         logger.log(Level.INFO, "User logged in: " + user + " from device [" + device.getName() + "]");
                     } else {
-                        if (!session.getAddress().equals(worker.getAddress()) || session.getControlPort() != worker.getPort()) {
+                        if (!session.getAddress().equals(
+                                worker.getAddress()) || session.getControlPort() != worker.getPort()) {
                             session.setAddress(worker.getAddress());
                             session.setControlPort(worker.getPort());
                             sessionMapper.update(session);

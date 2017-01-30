@@ -20,4 +20,8 @@ public class GeneralStatusMessage implements MessageData {
     public void setCode(GeneralCodes code) {
         this.code = code;
     }
+
+    public boolean checkCode(GeneralCodes code) {
+        return code.equals(this.code);
+    }
 }

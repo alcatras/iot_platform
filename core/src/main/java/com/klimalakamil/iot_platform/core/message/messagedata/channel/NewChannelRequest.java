@@ -1,6 +1,5 @@
 package com.klimalakamil.iot_platform.core.message.messagedata.channel;
 
-import com.klimalakamil.iot_platform.core.message.MessageData;
 import com.klimalakamil.iot_platform.core.message.messagedata.channel.util.DeviceProperties;
 
 /**

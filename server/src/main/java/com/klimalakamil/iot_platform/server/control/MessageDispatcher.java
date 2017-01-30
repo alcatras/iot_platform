@@ -2,7 +2,6 @@ package com.klimalakamil.iot_platform.server.control;
 
 import com.klimalakamil.iot_platform.server.generic.BufferedDispatcher;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -26,8 +25,9 @@ public class MessageDispatcher extends BufferedDispatcher<AddressedParcel> {
     @Override
     public void dispatch(AddressedParcel data) {
         //logger.log(Level.INFO, "Dispatching new message: " + data.getParcel().getTag());
-        if(!expectedMessage.parse(data)) {
+        if (!expectedMessage.parse(data)) {
             super.dispatch(data);
+            expectedMessage.shutdown();
         }
     }
 }

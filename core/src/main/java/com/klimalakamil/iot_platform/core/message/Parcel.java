@@ -31,6 +31,10 @@ public class Parcel {
         return tag;
     }
 
+    public boolean checkTag(Class<? extends MessageData> clazz) {
+        return tag.equals(clazz.getCanonicalName());
+    }
+
     public <T> T getMessageData(Class<T> clazz) {
         return gson.fromJson(new String(data), clazz);
     }
