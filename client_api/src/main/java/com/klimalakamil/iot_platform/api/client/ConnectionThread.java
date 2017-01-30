@@ -36,13 +36,17 @@ public class ConnectionThread implements Runnable {
         this.consumer = consumer;
         this.serializer = new JsonSerializer();
 
-        outputQueue = new ArrayBlockingQueue<byte[]>(20);
+        outputQueue = new ArrayBlockingQueue<>(20);
     }
 
     public boolean send(MessageData messageData) {
+        return send(messageData, -1);
+    }
+
+    public boolean send(MessageData messageData, long id) {
         if (running.get()) {
             try {
-                outputQueue.offer(serializer.serialize(messageData), 500, TimeUnit.MILLISECONDS);
+                outputQueue.offer(serializer.serialize(messageData, id), 500, TimeUnit.MILLISECONDS);
             } catch (Exception e) {
                 logger.log(Level.WARNING, e.getMessage(), e);
                 return false;

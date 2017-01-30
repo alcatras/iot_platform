@@ -9,21 +9,21 @@ public class Parcel {
 
     private transient Gson gson;
     private String tag;
-    private int id;
+    private long id;
     private byte[] data;
 
     public Parcel() {
         gson = new Gson();
     }
 
-    public Parcel(String tag, int id, byte[] data, Gson gson) {
+    public Parcel(String tag, long id, byte[] data, Gson gson) {
         this.tag = tag;
         this.data = data;
         this.gson = gson;
         this.id = id;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 

@@ -14,9 +14,9 @@ public interface ClientListener {
 
     void onStatusMessage(GeneralStatusMessage generalStatusMessage);
 
-    void onNewChannelRequest(ChannelParticipationRequest request);
+    boolean acceptChannelRequest(ChannelParticipationRequest request);
 
-    void onNewChannelResponse(NewChannelResponse response);
+    boolean acceptNewChannel(NewChannelResponse response);
 
     void parseMessage(Parcel parcel);
 }

@@ -2,6 +2,7 @@ package com.klimalakamil.iot_platform.server;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 
 /**
@@ -58,7 +59,11 @@ public class ClientContext {
         this.id = id;
     }
 
-    public String getUniqueId() {
-        return socket.getInetAddress().getHostAddress() + ":" + socket.getPort();
+    public static String getUniqueId(Socket socket) {
+        return getUniqueId(socket.getInetAddress(), socket.getPort());
+    }
+
+    public static String getUniqueId(InetAddress address, int port) {
+        return address.getHostAddress() + ":" + port;
     }
 }

@@ -2,6 +2,7 @@ package com.klimalakamil.iot_platform.server.control;
 
 import com.klimalakamil.iot_platform.server.ClientContext;
 import com.klimalakamil.iot_platform.server.control.service.AuthenticationService;
+import com.klimalakamil.iot_platform.server.control.service.ChannelService;
 import com.klimalakamil.iot_platform.server.control.service.TimeService;
 import com.klimalakamil.iot_platform.server.generic.Parser;
 
@@ -29,9 +30,9 @@ public class ControlConnectionHandler implements Parser<ClientContext> {
 
         TimeService timeService = new TimeService();
         messageDispatcher.registerParser(timeService);
-//
-//        ChannelService channelService = new ChannelService(controlDispatcher);
-//        messageDispatcher.registerParser(channelService);
+
+        ChannelService channelService = new ChannelService();
+        messageDispatcher.registerParser(channelService);
     }
 
     @Override

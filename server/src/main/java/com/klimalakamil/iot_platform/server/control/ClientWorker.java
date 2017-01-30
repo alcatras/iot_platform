@@ -17,6 +17,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -49,9 +50,13 @@ public class ClientWorker implements Runnable {
     }
 
     public boolean send(MessageData messageData) {
+        return send(messageData, 0);
+    }
+
+    public boolean send(MessageData messageData, long id) {
         if (running.get()) {
             try {
-                if (!messages.offer(serializer.serialize(messageData), 100, TimeUnit.MILLISECONDS)) {
+                if (!messages.offer(serializer.serialize(messageData, id), 100, TimeUnit.MILLISECONDS)) {
                     logger.log(Level.WARNING, "Unable to send message, queue full");
                     return false;
                 }
@@ -66,7 +71,7 @@ public class ClientWorker implements Runnable {
 
     @Override
     public void run() {
-        ConnectionRegistry.getInstance().register(context.getUniqueId(), this);
+        ConnectionRegistry.getInstance().register(ClientContext.getUniqueId(context.getSocket()), this);
         logger.log(Level.INFO, "Starting control thread for connection: " + context.getSocket());
 
 
@@ -150,7 +155,7 @@ public class ClientWorker implements Runnable {
         } catch (IOException ignored) {
         }
 
-        ConnectionRegistry.getInstance().unregister(context.getUniqueId());
+        ConnectionRegistry.getInstance().unregister(ClientContext.getUniqueId(context.getSocket()));
         logger.log(Level.INFO, "Closed control thread for connection: " + context.getSocket());
 
     }

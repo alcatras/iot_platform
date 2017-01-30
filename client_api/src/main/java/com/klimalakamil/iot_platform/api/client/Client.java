@@ -2,6 +2,7 @@ package com.klimalakamil.iot_platform.api.client;
 
 import com.klimalakamil.iot_platform.core.message.MessageData;
 import com.klimalakamil.iot_platform.core.message.Parcel;
+import com.klimalakamil.iot_platform.core.message.messagedata.GeneralCodes;
 import com.klimalakamil.iot_platform.core.message.messagedata.GeneralStatusMessage;
 import com.klimalakamil.iot_platform.core.message.messagedata.PingMessage;
 import com.klimalakamil.iot_platform.core.message.messagedata.channel.ChannelParticipationRequest;
@@ -82,10 +83,16 @@ public class Client implements Consumer<Parcel> {
             listener.onStatusMessage(parcel.getMessageData(GeneralStatusMessage.class));
 
         } else if (tag.equals(ChannelParticipationRequest.class.getCanonicalName())) {
-            listener.onNewChannelRequest(parcel.getMessageData(ChannelParticipationRequest.class));
+            ChannelParticipationRequest request = parcel.getMessageData(ChannelParticipationRequest.class);
+            boolean state = listener.acceptChannelRequest(request);
+
+            connectionThread.send(new GeneralStatusMessage(state ? GeneralCodes.CHANNEL_ACCEPT : GeneralCodes.CHANNEL_REFUSE), parcel.getId());
 
         } else if (tag.equals(NewChannelResponse.class.getCanonicalName())) {
-            listener.onNewChannelResponse(parcel.getMessageData(NewChannelResponse.class));
+            NewChannelResponse newChannelResponse = parcel.getMessageData(NewChannelResponse.class);
+            boolean state = listener.acceptNewChannel(newChannelResponse);
+
+            connectionThread.send(new GeneralStatusMessage(state ? GeneralCodes.CHANNEL_ACCEPT : GeneralCodes.CHANNEL_REFUSE), parcel.getId());
 
         } else {
             listener.parseMessage(parcel);

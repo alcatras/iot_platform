@@ -1,4 +1,4 @@
-package com.klimalakamil.iot_platform.core.message.messagedata.channel;
+package com.klimalakamil.iot_platform.core.message.messagedata.channel.util;
 
 /**
  * Created by kamil on 22.01.17.

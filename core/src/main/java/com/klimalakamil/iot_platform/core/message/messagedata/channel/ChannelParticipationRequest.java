@@ -1,17 +1,18 @@
 package com.klimalakamil.iot_platform.core.message.messagedata.channel;
 
-import com.klimalakamil.iot_platform.core.message.MessageData;
+import com.klimalakamil.iot_platform.core.message.messagedata.channel.util.DeviceProperties;
 
 /**
  * Created by kamil on 22.01.17.
  */
-public class ChannelParticipationRequest implements MessageData {
+public class ChannelParticipationRequest extends ChannelMessage {
 
     private String requester;
     private boolean canWrite;
     private boolean canRead;
 
-    public ChannelParticipationRequest(String requester, DeviceProperties properties) {
+    public ChannelParticipationRequest(String name, String requester, DeviceProperties properties) {
+        super(name);
         this.requester = requester;
         this.canWrite = properties.isCanWrite();
         this.canRead = properties.isCanRead();

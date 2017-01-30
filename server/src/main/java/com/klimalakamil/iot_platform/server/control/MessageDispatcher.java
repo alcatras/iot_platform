@@ -11,9 +11,11 @@ import java.util.logging.Logger;
 public class MessageDispatcher extends BufferedDispatcher<AddressedParcel> {
 
     private Logger logger = Logger.getLogger(MessageDispatcher.class.getCanonicalName());
+    private ExpectedMessage expectedMessage;
 
     public MessageDispatcher(int serviceThreads) {
         super(serviceThreads);
+        expectedMessage = ExpectedMessage.getInstance();
     }
 
     @Override
@@ -24,6 +26,8 @@ public class MessageDispatcher extends BufferedDispatcher<AddressedParcel> {
     @Override
     public void dispatch(AddressedParcel data) {
         //logger.log(Level.INFO, "Dispatching new message: " + data.getParcel().getTag());
-        super.dispatch(data);
+        if(!expectedMessage.parse(data)) {
+            super.dispatch(data);
+        }
     }
 }

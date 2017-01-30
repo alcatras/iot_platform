@@ -49,7 +49,7 @@ public class AuthenticationService extends Service {
                         session = new Session(device, worker.getAddress(), worker.getPort(), LocalDateTime.now().plus(14, ChronoUnit.DAYS));
                         sessionMapper.insert(session);
                         addressedParcel.sendBack(new GeneralStatusMessage(GeneralCodes.OK));
-                        logger.log(Level.INFO, "User logged in: " + user);
+                        logger.log(Level.INFO, "User logged in: " + user + " from device [" + device.getName() + "]");
                     } else {
                         if (!session.getAddress().equals(worker.getAddress()) || session.getControlPort() != worker.getPort()) {
                             session.setAddress(worker.getAddress());

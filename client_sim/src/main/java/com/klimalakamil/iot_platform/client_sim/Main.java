@@ -8,13 +8,14 @@ import com.klimalakamil.iot_platform.core.message.messagedata.GeneralStatusMessa
 import com.klimalakamil.iot_platform.core.message.messagedata.auth.LoginMessage;
 import com.klimalakamil.iot_platform.core.message.messagedata.auth.LogoutMessage;
 import com.klimalakamil.iot_platform.core.message.messagedata.channel.ChannelParticipationRequest;
-import com.klimalakamil.iot_platform.core.message.messagedata.channel.DeviceProperties;
 import com.klimalakamil.iot_platform.core.message.messagedata.channel.NewChannelRequest;
 import com.klimalakamil.iot_platform.core.message.messagedata.channel.NewChannelResponse;
+import com.klimalakamil.iot_platform.core.message.messagedata.channel.util.DeviceProperties;
 import com.klimalakamil.iot_platform.core.message.messagedata.time.TimeRequest;
 import com.klimalakamil.iot_platform.core.message.messagedata.time.TimeResponse;
 
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.Scanner;
 
 /**
@@ -43,7 +44,7 @@ public class Main implements ClientListener {
 
             } else if (parts[0].equals("channel")) {
                 DeviceProperties other = new DeviceProperties(parts[1], false, false);
-                NewChannelRequest channelRequest = new NewChannelRequest(new DeviceProperties[]{other}, "", "");
+                NewChannelRequest channelRequest = new NewChannelRequest("channel0", new DeviceProperties[]{other}, "", "");
 
                 client.send(channelRequest);
             } else if (parts[0].equals("exit")) {
@@ -69,13 +70,16 @@ public class Main implements ClientListener {
     }
 
     @Override
-    public void onNewChannelRequest(ChannelParticipationRequest request) {
-        System.out.println("New channel request");
+    public boolean acceptChannelRequest(ChannelParticipationRequest request) {
+        System.out.println("New channel [" + request.getName() + "] request from: " + request.getRequester() + ", accepting");
+        return true;
     }
 
     @Override
-    public void onNewChannelResponse(NewChannelResponse response) {
-        System.out.println("New channel response");
+    public boolean acceptNewChannel(NewChannelResponse response) {
+        System.out.println("New channel response, accepting");
+        System.out.println(Arrays.toString(response.getDevicesState().entrySet().toArray()));
+        return true;
     }
 
     @Override
