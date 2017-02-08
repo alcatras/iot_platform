@@ -16,7 +16,8 @@ public enum GeneralCodes {
     ALREADY_LOGGED_IN(320, "Already logged in."),
 
     CHANNEL_ACCEPT(400, "Accept channel request."),
-    CHANNEL_REFUSE(401, "Refuse channel request.");
+    CHANNEL_REFUSE(401, "Refuse channel request."),
+    CHANNEL_ABORTED(402, "Aborted channel creation.");
 
     int code;
     String explanation;

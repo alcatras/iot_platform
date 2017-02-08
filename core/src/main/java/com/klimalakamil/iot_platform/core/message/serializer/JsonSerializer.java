@@ -20,21 +20,21 @@ public class JsonSerializer {
         gson = new Gson();
     }
 
-    public byte[] serialize(MessageData messageData, long id) {
+    public String serialize(MessageData messageData, long id) {
         Parcel parcel = new Parcel(messageData.getClass().getCanonicalName(), id, gson.toJson(messageData).getBytes(),
                 gson);
-        return (gson.toJson(parcel) + '\n').getBytes();
+        return gson.toJson(parcel);
     }
 
-    public byte[] serialize(MessageData messageData) {
+    public String serialize(MessageData messageData) {
         return serialize(messageData, 0);
     }
 
-    public Parcel deserialize(byte[] data) {
+    public Parcel deserialize(String data) {
         try {
-            return gson.fromJson(new String(data), Parcel.class);
+            return gson.fromJson(data.replaceAll("\n", ""), Parcel.class);
         } catch (JsonSyntaxException e) {
-            logger.log(Level.WARNING, "Malformed JSON: " + new String(data));
+            logger.log(Level.WARNING, "Malformed JSON: " + data);
             return null;
         }
     }

@@ -1,16 +1,21 @@
 package com.klimalakamil.iot_platform.server;
 
 import com.klimalakamil.iot_platform.core.v2.socket.Sockets;
+import com.klimalakamil.iot_platform.server.channel.ChannelConnectionHandler;
 import com.klimalakamil.iot_platform.server.control.ControlConnectionHandler;
 import com.klimalakamil.iot_platform.server.database.DatabaseHelper;
 import com.klimalakamil.iot_platform.server.database.mappers.DeviceMapper;
 import com.klimalakamil.iot_platform.server.database.mappers.SessionMapper;
 import com.klimalakamil.iot_platform.server.database.mappers.UserMapper;
+import com.sun.net.ssl.internal.ssl.Provider;
 
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.Security;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,6 +25,15 @@ import java.util.logging.Logger;
  */
 public class Server {
 
+    static {
+        Security.addProvider(new Provider());
+
+        System.setProperty("javax.net.ssl.keyStore", "server.ks");
+        System.setProperty("javax.net.ssl.keyStorePassword", "password");
+
+        //System.setProperty("javax.net.debug","all");
+    }
+
     private Logger logger = Logger.getLogger(Server.class.getName());
     private ServerSocket socket;
 
@@ -27,8 +41,9 @@ public class Server {
 
     private Server() throws SQLException {
         try {
-            socket = Sockets.newServerSocket(InetAddress.getByName("localhost"), 25535, 10);
-        } catch (IOException e) {
+            socket = Sockets.newServerSocket(InetAddress.getByName("localhost"), 25535, 10);//newSSLServerSocket(InetAddress.getByName("localhost"), 25535, 10);
+            //socket.setWantClientAuth(false);
+        } catch (Exception e) {
             logger.log(Level.SEVERE, "Unable to create socket: " + e.getMessage(), e);
         }
 
@@ -46,6 +61,10 @@ public class Server {
         // Create control plane handlers
         ControlConnectionHandler controlConnectionHandler = new ControlConnectionHandler();
         serverConnectionDispatcher.registerParser(controlConnectionHandler);
+
+        // Create channel plane handlers
+        ChannelConnectionHandler channelConnectionHandler = new ChannelConnectionHandler();
+        serverConnectionDispatcher.registerParser(channelConnectionHandler);
 
         logger.log(Level.INFO, "Starting server");
         while (running) {

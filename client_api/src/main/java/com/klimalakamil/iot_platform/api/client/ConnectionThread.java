@@ -4,10 +4,9 @@ import com.klimalakamil.iot_platform.core.message.MessageData;
 import com.klimalakamil.iot_platform.core.message.Parcel;
 import com.klimalakamil.iot_platform.core.message.serializer.JsonSerializer;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import javax.net.ssl.SSLSocket;
+import java.io.*;
+import java.net.InterfaceAddress;
 import java.net.Socket;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -28,7 +27,7 @@ public class ConnectionThread implements Runnable {
     private Consumer<Parcel> consumer;
     private JsonSerializer serializer;
 
-    private BlockingQueue<byte[]> outputQueue;
+    private BlockingQueue<String> outputQueue;
     private AtomicBoolean running = new AtomicBoolean(true);
 
     public ConnectionThread(Socket socket, Consumer<Parcel> consumer) {
@@ -59,55 +58,34 @@ public class ConnectionThread implements Runnable {
     @Override
     public void run() {
 
-        InputStream inputStream = null;
-        OutputStream outputStream = null;
+        BufferedReader bufferedReader = null;
+        PrintWriter printWriter = null;
 
         try {
-            inputStream = socket.getInputStream();
-            outputStream = socket.getOutputStream();
+            OutputStream outputStream = socket.getOutputStream();
 
-            outputStream.write(new byte[]{0, 0});
+            byte[] id = new byte[] {0};
+            outputStream.write(id, 0, 1);
+            outputStream.flush();
+
+            bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            printWriter = new PrintWriter(socket.getOutputStream());
         } catch (IOException e) {
             logger.log(Level.WARNING, "Unable to initialize connection: " + e.getMessage(), e);
             return;
         }
 
-        int available;
-        int bufferPosition = 0;
-        int CHUNK_SIZE = 2048;
-        byte[] inputBuffer = new byte[CHUNK_SIZE];
-        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-
         while (running.get()) {
             try {
-                available = inputStream.available();
-                if (available > 0) {
-                    while (bufferPosition + available >= CHUNK_SIZE) {
-                        int remaining = CHUNK_SIZE - bufferPosition;
-                        available -= inputStream.read(inputBuffer, bufferPosition, remaining);
-                        bufferPosition = 0;
-                        byteOutputStream.write(inputBuffer, 0, CHUNK_SIZE - 1);
-                        if (inputBuffer[CHUNK_SIZE - 1] == '\n') {
-                            consumer.accept(serializer.deserialize(byteOutputStream.toByteArray()));
-                            byteOutputStream.reset();
-                        }
-                    }
-
-                    bufferPosition += inputStream.read(inputBuffer, bufferPosition, available);
-                    byteOutputStream.write(inputBuffer, 0, available);
-
-                    // TODO: something better
-                    if (inputBuffer[bufferPosition - 1] == '\n') {
-                        consumer.accept(serializer.deserialize(byteOutputStream.toByteArray()));
-                        byteOutputStream.reset();
-                        bufferPosition = 0;
-                    }
+                if(bufferedReader.ready()) {
+                    consumer.accept(serializer.deserialize(bufferedReader.readLine()));
                 }
 
                 try {
-                    byte[] data;
-                    while (running.get() && (data = outputQueue.poll(50, TimeUnit.MICROSECONDS)) != null) {
-                        outputStream.write(data);
+                    String data;
+                    while (running.get() && (data = outputQueue.poll(1, TimeUnit.MILLISECONDS)) != null) {
+                        printWriter.println(data);
+                        printWriter.flush();
                     }
                 } catch (InterruptedException e) {
                     logger.log(Level.WARNING, e.getMessage(), e);

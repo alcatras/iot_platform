@@ -5,9 +5,11 @@ import com.klimalakamil.iot_platform.core.message.Parcel;
 import com.klimalakamil.iot_platform.core.message.messagedata.GeneralCodes;
 import com.klimalakamil.iot_platform.core.message.messagedata.GeneralStatusMessage;
 import com.klimalakamil.iot_platform.core.message.messagedata.PingMessage;
+import com.klimalakamil.iot_platform.core.message.messagedata.channel.ChannelConnectionId;
 import com.klimalakamil.iot_platform.core.message.messagedata.channel.ChannelParticipationRequest;
 import com.klimalakamil.iot_platform.core.message.messagedata.channel.NewChannelResponse;
 import com.klimalakamil.iot_platform.core.v2.socket.Sockets;
+import com.sun.net.ssl.internal.ssl.Provider;
 
 import javax.net.ssl.*;
 import java.io.IOException;
@@ -16,8 +18,12 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.security.KeyStore;
 import java.security.SecureRandom;
+import java.security.Security;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -25,15 +31,29 @@ import java.util.logging.Logger;
  */
 public class Client implements Consumer<Parcel> {
 
+    static {
+        Security.addProvider(new Provider());
+
+        System.setProperty("javax.net.ssl.trustStore", "client.ts");
+        System.setProperty("javax.net.ssl.trustStorePassword", "password");
+
+        //System.setProperty("javax.net.debug","all");
+    }
+
     private Logger logger = Logger.getLogger(Client.class.getName());
 
     private ClientListener listener;
     private ConnectionThread connectionThread;
 
+    private Map<String, ChannelThread> channels;
+
     public Client(ClientListener listener, InetAddress address, int port) throws IOException {
         this.listener = listener;
 
-        Socket socket = Sockets.newClientSocket(address, port);
+        channels = new HashMap<>();
+
+        Socket socket = Sockets.newClientSocket(address, port);//Sockets.newClientSocket(address, port);
+        //socket.setUseClientMode(true);
         connectionThread = new ConnectionThread(socket, this);
         new Thread(connectionThread).start();
     }
@@ -74,15 +94,13 @@ public class Client implements Consumer<Parcel> {
     @Override
     public void accept(Parcel parcel) {
 
-        String tag = parcel.getTag();
-
-        if (tag.equals(PingMessage.class.getCanonicalName())) {
+        if (parcel.checkTag(PingMessage.class)) {
             connectionThread.send(new PingMessage());
 
-        } else if (tag.equals(GeneralStatusMessage.class.getCanonicalName())) {
+        } else if (parcel.checkTag(GeneralStatusMessage.class)) {
             listener.onStatusMessage(parcel.getMessageData(GeneralStatusMessage.class));
 
-        } else if (tag.equals(ChannelParticipationRequest.class.getCanonicalName())) {
+        } else if (parcel.checkTag(ChannelParticipationRequest.class)) {
             ChannelParticipationRequest request = parcel.getMessageData(ChannelParticipationRequest.class);
             boolean state = listener.acceptChannelRequest(request);
 
@@ -90,13 +108,26 @@ public class Client implements Consumer<Parcel> {
                     new GeneralStatusMessage(state ? GeneralCodes.CHANNEL_ACCEPT : GeneralCodes.CHANNEL_REFUSE),
                     parcel.getId());
 
-        } else if (tag.equals(NewChannelResponse.class.getCanonicalName())) {
+        } else if (parcel.checkTag(NewChannelResponse.class)) {
             NewChannelResponse newChannelResponse = parcel.getMessageData(NewChannelResponse.class);
             boolean state = listener.acceptNewChannel(newChannelResponse);
 
             connectionThread.send(
                     new GeneralStatusMessage(state ? GeneralCodes.CHANNEL_ACCEPT : GeneralCodes.CHANNEL_REFUSE),
                     parcel.getId());
+
+        } else if (parcel.checkTag(ChannelConnectionId.class)) {
+            ChannelConnectionId channelConnectionId = parcel.getMessageData(ChannelConnectionId.class);
+
+            try {
+                ChannelThread channelThread = new ChannelThread(Sockets.newClientSocket(InetAddress.getByName("localhost"), 25535), channelConnectionId.getConnectionId(), channelConnectionId.getName());
+                channels.put(channelConnectionId.getName(), channelThread);
+                new Thread(channelThread).start();
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, "Invalid server address");
+            }
+
+            logger.log(Level.INFO, "Established new channel connection: " + channelConnectionId.getName());
 
         } else {
             listener.parseMessage(parcel);
@@ -105,6 +136,11 @@ public class Client implements Consumer<Parcel> {
 
     public void send(MessageData messageData) {
         connectionThread.send(messageData);
+    }
+
+    public void sendOnChannel(String channelName, byte[] data) {
+        ChannelThread channelThread = channels.get(channelName);
+        channelThread.send(data);
     }
 
     public void close() {

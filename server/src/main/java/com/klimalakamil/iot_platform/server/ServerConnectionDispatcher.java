@@ -2,10 +2,11 @@ package com.klimalakamil.iot_platform.server;
 
 import com.klimalakamil.iot_platform.server.generic.Dispatcher;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import javax.net.ssl.SSLSocket;
+import java.io.*;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,28 +24,20 @@ public class ServerConnectionDispatcher extends Dispatcher<ClientContext> {
 
     @Override
     public void dispatch(ClientContext data) {
-        Socket client = data.getSocket();
 
         try {
-            InputStream inputStream = client.getInputStream();
-            OutputStream outputStream = client.getOutputStream();
-
             long time = System.currentTimeMillis();
 
-            byte[] bytes = new byte[2];
-            while (System.currentTimeMillis() - time < 1000) {
-                if (inputStream.available() >= 2) {
-                    inputStream.read(bytes, 0, 2);
-
-                    int id = bytes[0] & (((int) bytes[1]) << 4);
-
-                    logger.log(Level.INFO, "Read connection id of " + id + ": " + data.getSocket().toString());
+            InputStream inputStream = data.getSocket().getInputStream();
+            while (System.currentTimeMillis() - time < 3000) {
+                if(inputStream.available() > 0) {
+                    byte[] id = new byte[1];
+                    inputStream.read(id, 0, 1);
+                    logger.log(Level.INFO, "Connection id: " + id[0]);
+                    data.setId(id[0]);
 
                     data.setInputStream(inputStream);
-                    data.setOutputStream(outputStream);
-
-                    data.setId(id);
-
+                    data.setOutputStream(data.getSocket().getOutputStream());
                     super.dispatch(data);
                     return;
                 }

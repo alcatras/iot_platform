@@ -38,4 +38,24 @@ public class DeviceProperties {
     public void setCanWrite(boolean canWrite) {
         this.canWrite = canWrite;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DeviceProperties that = (DeviceProperties) o;
+
+        if (canRead != that.canRead) return false;
+        if (canWrite != that.canWrite) return false;
+        return name != null ? name.equals(that.name) : that.name == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (canRead ? 1 : 0);
+        result = 31 * result + (canWrite ? 1 : 0);
+        return result;
+    }
 }

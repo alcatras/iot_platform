@@ -11,11 +11,11 @@ public class ChannelParticipationRequest extends ChannelMessage {
     private boolean canWrite;
     private boolean canRead;
 
-    public ChannelParticipationRequest(String name, String requester, DeviceProperties properties) {
+    public ChannelParticipationRequest(String name, String requester, boolean canRead, boolean canWrite) {
         super(name);
         this.requester = requester;
-        this.canWrite = properties.isCanWrite();
-        this.canRead = properties.isCanRead();
+        this.canWrite = canWrite;
+        this.canRead = canRead;
     }
 
     public String getRequester() {

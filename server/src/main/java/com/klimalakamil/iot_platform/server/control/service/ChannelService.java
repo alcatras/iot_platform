@@ -8,6 +8,8 @@ import com.klimalakamil.iot_platform.core.message.messagedata.channel.NewChannel
 import com.klimalakamil.iot_platform.core.message.messagedata.channel.util.DeviceProperties;
 import com.klimalakamil.iot_platform.core.message.messagedata.channel.util.DeviceState;
 import com.klimalakamil.iot_platform.server.ClientContext;
+import com.klimalakamil.iot_platform.server.channel.ChannelDeviceInfo;
+import com.klimalakamil.iot_platform.server.channel.ChannelManager;
 import com.klimalakamil.iot_platform.server.control.AddressedParcel;
 import com.klimalakamil.iot_platform.server.control.ClientWorker;
 import com.klimalakamil.iot_platform.server.control.ConnectionRegistry;
@@ -31,74 +33,77 @@ public class ChannelService extends Service {
     private DeviceMapper deviceMapper = (DeviceMapper) MapperRegistry.getInstance().forClass(Device.class);
     private SessionMapper sessionMapper = (SessionMapper) MapperRegistry.getInstance().forClass(Session.class);
     private ConnectionRegistry connectionRegistry = ConnectionRegistry.getInstance();
+    private ChannelManager channelManager = ChannelManager.getInstance();
 
     public ChannelService() {
         super(ChannelService.class);
 
         addAction(NewChannelRequest.class, addressedParcel -> {
-            if(negotiateChannelCreation(addressedParcel)) {
+            ClientWorker worker = addressedParcel.getWorker();
+            Session clientSession = sessionMapper.get(worker);
 
-            } else {
+            if (authenticationService.isActive(clientSession)) {
+                NewChannelRequest channelRequest = addressedParcel.getMessageData(NewChannelRequest.class);
+                Device rootDevice = clientSession.getDevice();
 
+                Map<String, ChannelDeviceInfo> devices = new HashMap<>();
+                for(DeviceProperties deviceProperties: channelRequest.getDevices()) {
+                    ClientWorker deviceWorker = null;
+                    Device device = deviceMapper.get(rootDevice.getUser(), deviceProperties.getName());
+
+                    if(device != null) {
+                        Session session = sessionMapper.get(device);
+                        if(session.isValid()) {
+                            deviceWorker = connectionRegistry.get(
+                                    ClientContext.getUniqueId(session.getAddress(), session.getControlPort()));
+                        }
+                    }
+                    devices.put(deviceProperties.getName(), new ChannelDeviceInfo(deviceProperties, deviceWorker));
+                }
+
+                ExpectedMessage expectedMessage = ExpectedMessage.getInstance();
+                List<ExpectedMessage.ExMessageId> expectedMessages = new ArrayList<>();
+
+                for (Map.Entry<String, ChannelDeviceInfo> deviceInfoSet : devices.entrySet()) {
+                    String name = deviceInfoSet.getKey();
+                    ChannelDeviceInfo channelDeviceInfo = deviceInfoSet.getValue();
+
+                    if(channelDeviceInfo.getWorker() != null) {
+                        ChannelParticipationRequest request = new ChannelParticipationRequest(channelDeviceInfo.getName(), rootDevice.getName(), channelDeviceInfo.isCanRead(), channelDeviceInfo.isCanWrite());
+
+                        expectedMessages.add(expectedMessage.sendAndExpect(request, channelDeviceInfo.getWorker(), new OnDeviceStateMessageListener(devices, name), 15, TimeUnit.SECONDS));
+                    } else {
+                        devices.get(name).setState(DeviceState.INACTIVE_DEVICE);
+                    }
+                }
+                expectedMessage.waitUntilDone(expectedMessages);
+
+                OnHostFinalDecisionListener listener = new OnHostFinalDecisionListener();
+                Map<String, DeviceState> states = new HashMap<>();
+                for(ChannelDeviceInfo channelDeviceInfo : devices.values()) {
+                    states.put(channelDeviceInfo.getName(), channelDeviceInfo.getState());
+                }
+                expectedMessage.sendMessageAndWait(new NewChannelResponse(channelRequest.getName(), states), worker,
+                        listener, 10, TimeUnit.SECONDS);
+
+                if(listener.isAccepted()) {
+                    channelManager.createChannel(channelRequest.getName(), new ArrayList<>(devices.values()));
+                } else {
+                    for(ChannelDeviceInfo channelDeviceInfo : devices.values()) {
+                        if(channelDeviceInfo.getState().equals(DeviceState.ACCEPTED)) {
+                            channelDeviceInfo.getWorker().send(new GeneralStatusMessage(GeneralCodes.CHANNEL_ABORTED));
+                        }
+                    }
+                }
             }
         });
     }
 
-    private boolean negotiateChannelCreation(AddressedParcel addressedParcel) {
-        ClientWorker worker = addressedParcel.getWorker();
-        Session clientSession = sessionMapper.get(worker);
-
-        if (authenticationService.isActive(clientSession)) {
-            NewChannelRequest channelRequest = addressedParcel.getMessageData(NewChannelRequest.class);
-            Device rootDevice = clientSession.getDevice();
-
-            DeviceProperties[] devices = channelRequest.getDevices();
-            Map<String, DeviceState> states = Collections.synchronizedMap(new HashMap<>());
-
-            ExpectedMessage expectedMessage = ExpectedMessage.getInstance();
-            List<ExpectedMessage.ExMessageId> expectedMessages = new ArrayList<>();
-
-            for (DeviceProperties deviceProperties : devices) {
-                Device device = deviceMapper.get(rootDevice.getUser(), deviceProperties.getName());
-                Session session = sessionMapper.get(device);
-
-                if (device != null) {
-                    if (session.isValid()) {
-                        ClientWorker deviceWorker = connectionRegistry.get(
-                                ClientContext.getUniqueId(session.getAddress(), session.getControlPort()));
-
-                        if (deviceWorker != null) {
-                            ChannelParticipationRequest request = new ChannelParticipationRequest(
-                                    channelRequest.getName(), rootDevice.getName(), deviceProperties);
-
-                            expectedMessages.add(expectedMessage.sendAndExpect(request, deviceWorker,
-                                    new OnDeviceStateMessageListener(states, device.getName()), 15, TimeUnit.SECONDS));
-                        } else {
-                            states.put(deviceProperties.getName(), DeviceState.INACTIVE_DEVICE);
-                        }
-                    } else {
-                        states.put(deviceProperties.getName(), DeviceState.INACTIVE_DEVICE);
-                    }
-                } else {
-                    states.put(deviceProperties.getName(), DeviceState.INVALID_DEVICE);
-                }
-            }
-            expectedMessage.waitUntilDone(expectedMessages);
-
-            OnHostFinalDecisionListener listener = new OnHostFinalDecisionListener();
-            expectedMessage.sendMessageAndWait(new NewChannelResponse(channelRequest.getName(), states), worker,
-                    listener, 10, TimeUnit.SECONDS);
-
-            return listener.isStatus();
-        }
-        return false;
-    }
-
     class OnDeviceStateMessageListener implements ExpectedMessage.OnMessageReceivedListener {
-        private Map<String, DeviceState> devices;
+        private Map<String, ChannelDeviceInfo> devices;
         private String name;
 
-        public OnDeviceStateMessageListener(Map<String, DeviceState> devices, String name) {
+        public OnDeviceStateMessageListener(Map<String, ChannelDeviceInfo> devices, String name) {
             this.devices = devices;
             this.name = name;
         }
@@ -109,22 +114,22 @@ public class ChannelService extends Service {
                 GeneralStatusMessage generalStatusMessage = parcel.getMessageData(GeneralStatusMessage.class);
 
                 if (generalStatusMessage.checkCode(GeneralCodes.CHANNEL_ACCEPT)) {
-                    devices.put(name, DeviceState.ACCEPTED);
+                    devices.get(name).setState(DeviceState.ACCEPTED);
                     return;
                 }
             }
-            devices.put(name, DeviceState.REFUSED);
+            devices.get(name).setState(DeviceState.REFUSED);
         }
 
         @Override
         public void failed() {
-            devices.put(name, DeviceState.TIME_OUT);
+            devices.get(name).setState(DeviceState.TIME_OUT);
         }
     }
 
     class OnHostFinalDecisionListener implements ExpectedMessage.OnMessageReceivedListener {
 
-        private boolean status = false;
+        private boolean accepted = false;
 
         @Override
         public void receive(AddressedParcel parcel) {
@@ -132,20 +137,20 @@ public class ChannelService extends Service {
                 GeneralStatusMessage generalStatusMessage = parcel.getMessageData(GeneralStatusMessage.class);
 
                 if (generalStatusMessage.checkCode(GeneralCodes.CHANNEL_ACCEPT)) {
-                    status = true;
+                    accepted = true;
                     return;
                 }
             }
-            status = false;
+            accepted = false;
         }
 
         @Override
         public void failed() {
-            status = false;
+            accepted = false;
         }
 
-        public boolean isStatus() {
-            return status;
+        public boolean isAccepted() {
+            return accepted;
         }
     }
 }

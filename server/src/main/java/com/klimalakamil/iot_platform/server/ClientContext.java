@@ -1,5 +1,6 @@
 package com.klimalakamil.iot_platform.server;
 
+import javax.net.ssl.SSLSocket;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
@@ -17,7 +18,7 @@ public class ClientContext {
     private InputStream inputStream;
     private OutputStream outputStream;
 
-    private int id;
+    private byte id;
 
     public ClientContext(Socket socket) {
         this.socket = socket;
@@ -59,11 +60,11 @@ public class ClientContext {
         this.outputStream = outputStream;
     }
 
-    public int getId() {
+    public byte getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(byte id) {
         this.id = id;
     }
 }

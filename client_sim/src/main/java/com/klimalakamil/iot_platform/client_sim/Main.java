@@ -43,18 +43,21 @@ public class Main implements ClientListener {
                 client.send(new TimeRequest());
 
             } else if (parts[0].equals("channel")) {
-                DeviceProperties other = new DeviceProperties(parts[1], false, false);
-                NewChannelRequest channelRequest = new NewChannelRequest("channel0", new DeviceProperties[]{other}, "",
+                DeviceProperties self = new DeviceProperties("device", true, true);
+                DeviceProperties other = new DeviceProperties(parts[1], true, true);
+                NewChannelRequest channelRequest = new NewChannelRequest("channel0",
+                        new DeviceProperties[]{self, other}, "",
                         "");
 
                 client.send(channelRequest);
+            } else if(parts[0].equals("send")) {
+                client.sendOnChannel("channel0", (parts[1] + "\n").getBytes());
             } else if (parts[0].equals("exit")) {
                 client.close();
                 return;
             }
         }
     }
-
 
     @Override
     public void onConnectionClose() {

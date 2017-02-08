@@ -7,10 +7,7 @@ import com.klimalakamil.iot_platform.core.message.messagedata.PingMessage;
 import com.klimalakamil.iot_platform.core.message.serializer.JsonSerializer;
 import com.klimalakamil.iot_platform.server.ClientContext;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -33,7 +30,7 @@ public class ClientWorker implements Runnable {
     private long lastMessageTime;
     private AtomicBoolean running = new AtomicBoolean(true);
 
-    private BlockingQueue<byte[]> messages;
+    private BlockingQueue<String> messages;
 
     public ClientWorker(ClientContext clientContext, MessageDispatcher messageDispatcher) {
         this.context = clientContext;
@@ -43,9 +40,8 @@ public class ClientWorker implements Runnable {
         messages = new ArrayBlockingQueue<>(10);
     }
 
-    private void dispatch(ByteArrayOutputStream buffer) {
-        messageDispatcher.dispatch(new AddressedParcel(serializer.deserialize(buffer.toByteArray()), this));
-        buffer.reset();
+    private void dispatch(String json) {
+        messageDispatcher.dispatch(new AddressedParcel(serializer.deserialize(json), this));
     }
 
     public boolean send(MessageData messageData) {
@@ -75,53 +71,29 @@ public class ClientWorker implements Runnable {
 
 
         Socket socket = context.getSocket();
-        InputStream inputStream = context.getInputStream();
-        OutputStream outputStream = context.getOutputStream();
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(context.getInputStream()));
+        PrintWriter printWriter = new PrintWriter(context.getOutputStream());
 
-        final int CHUNK_SIZE = 2048;
-
-        int available;
-        int bufferPosition = 0;
-        byte buffer[] = new byte[CHUNK_SIZE];
-
-        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
-
-        int checkAlive = 0;
         boolean activity;
-
+        int checkAlive = 0;
         lastMessageTime = System.currentTimeMillis();
-        while (running.get()) {
-            activity = false;
 
+        while(running.get()) {
             try {
-                available = inputStream.available();
-                if (available > 0) {
+                activity = false;
+                if(bufferedReader.ready()) {
                     activity = true;
-                    while (bufferPosition + available >= CHUNK_SIZE) {
-                        int remaining = CHUNK_SIZE - bufferPosition;
-                        available -= inputStream.read(buffer, bufferPosition, remaining);
-                        bufferPosition = 0;
-                        byteBuffer.write(buffer, 0, CHUNK_SIZE - 1);
-                        if (buffer[CHUNK_SIZE - 1] == '\n') {
-                            dispatch(byteBuffer);
-                        }
-                        buffer = new byte[CHUNK_SIZE];
-                    }
+                    String line = bufferedReader.readLine();
+                    if (line == null)
+                        break;
 
-                    bufferPosition += inputStream.read(buffer, bufferPosition, available);
-
-                    // TODO: something better
-                    if (buffer[bufferPosition - 1] == '\n') {
-                        byteBuffer.write(buffer, 0, bufferPosition - 1);
-                        dispatch(byteBuffer);
-                        bufferPosition = 0;
-                        buffer = new byte[CHUNK_SIZE];
-                    }
+                    dispatch(line);
                 }
 
-                while (!messages.isEmpty()) {
+                while(!messages.isEmpty()) {
                     activity = true;
-                    outputStream.write(messages.poll(1, TimeUnit.MILLISECONDS));
+                    printWriter.println(messages.poll(1, TimeUnit.MILLISECONDS));
+                    printWriter.flush();
                 }
 
                 if (activity) {
@@ -131,23 +103,25 @@ public class ClientWorker implements Runnable {
                 }
 
                 if (++checkAlive > 5 * 250) {
-                    outputStream.write(serializer.serialize(new PingMessage()));
+                    printWriter.println(serializer.serialize(new PingMessage()));
+                    printWriter.flush();
+
                     checkAlive = 0;
                     long delta = System.currentTimeMillis() - lastMessageTime;
                     if (delta > 17500) {
-                        logger.log(Level.INFO, "Connection timed out after " + delta + "ms: " + context.getSocket());
+                        logger.log(Level.INFO, "Connection timed out after " + (delta / 1000) + "s: " + context.getSocket());
                         running.set(false);
 
-                        outputStream.write(
+                        printWriter.println(
                                 serializer.serialize(new GeneralStatusMessage(GeneralCodes.CONNECTION_TIME_OUT)));
-                        outputStream.flush();
+                        printWriter.flush();
                     }
                 }
 
-            } catch (IOException | InterruptedException e) {
+            } catch (IOException e) {
                 logger.log(Level.FINEST, "Error occured when communicating with client: " + e.getMessage(), e);
                 break;
-            }
+            } catch (InterruptedException ignored) {}
         }
 
         try {
