@@ -86,3 +86,18 @@ project(':client_sim') {
     sourceSets.main.java.srcDirs project(':client_api').sourceSets.main.java
     sourceSets.main.resources.srcDirs project(':client_api').sourceSets.main.resources
 }
+
+project(':system_test') {
+    dependencies {
+        compile 'mysql:mysql-connector-java:5.1.16'
+    }
+
+    sourceSets.main.java.srcDirs project(':core').sourceSets.main.java
+    sourceSets.main.resources.srcDirs project(':core').sourceSets.main.resources
+
+    sourceSets.main.java.srcDirs project(':server').sourceSets.main.java
+    sourceSets.main.resources.srcDirs project(':server').sourceSets.main.resources
+
+    sourceSets.main.java.srcDirs project(':client_api').sourceSets.main.java
+    sourceSets.main.resources.srcDirs project(':client_api').sourceSets.main.resources
+}

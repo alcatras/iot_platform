@@ -1,6 +1,5 @@
 package com.klimalakamil.iot_platform.server;
 
-import javax.net.ssl.SSLSocket;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;

@@ -2,11 +2,8 @@ package com.klimalakamil.iot_platform.server;
 
 import com.klimalakamil.iot_platform.server.generic.Dispatcher;
 
-import javax.net.ssl.SSLSocket;
-import java.io.*;
-import java.net.Socket;
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,7 +27,7 @@ public class ServerConnectionDispatcher extends Dispatcher<ClientContext> {
 
             InputStream inputStream = data.getSocket().getInputStream();
             while (System.currentTimeMillis() - time < 3000) {
-                if(inputStream.available() > 0) {
+                if (inputStream.available() > 0) {
                     byte[] id = new byte[1];
                     inputStream.read(id, 0, 1);
                     logger.log(Level.INFO, "Connection id: " + id[0]);

@@ -50,7 +50,7 @@ public class Main implements ClientListener {
                         "");
 
                 client.send(channelRequest);
-            } else if(parts[0].equals("send")) {
+            } else if (parts[0].equals("send")) {
                 client.sendOnChannel("channel0", (parts[1] + "\n").getBytes());
             } else if (parts[0].equals("exit")) {
                 client.close();

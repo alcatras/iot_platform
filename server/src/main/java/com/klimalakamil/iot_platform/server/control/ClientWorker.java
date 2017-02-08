@@ -7,7 +7,10 @@ import com.klimalakamil.iot_platform.core.message.messagedata.PingMessage;
 import com.klimalakamil.iot_platform.core.message.serializer.JsonSerializer;
 import com.klimalakamil.iot_platform.server.ClientContext;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -78,10 +81,10 @@ public class ClientWorker implements Runnable {
         int checkAlive = 0;
         lastMessageTime = System.currentTimeMillis();
 
-        while(running.get()) {
+        while (running.get()) {
             try {
                 activity = false;
-                if(bufferedReader.ready()) {
+                if (bufferedReader.ready()) {
                     activity = true;
                     String line = bufferedReader.readLine();
                     if (line == null)
@@ -90,7 +93,7 @@ public class ClientWorker implements Runnable {
                     dispatch(line);
                 }
 
-                while(!messages.isEmpty()) {
+                while (!messages.isEmpty()) {
                     activity = true;
                     printWriter.println(messages.poll(1, TimeUnit.MILLISECONDS));
                     printWriter.flush();
@@ -109,7 +112,8 @@ public class ClientWorker implements Runnable {
                     checkAlive = 0;
                     long delta = System.currentTimeMillis() - lastMessageTime;
                     if (delta > 17500) {
-                        logger.log(Level.INFO, "Connection timed out after " + (delta / 1000) + "s: " + context.getSocket());
+                        logger.log(Level.INFO,
+                                "Connection timed out after " + (delta / 1000) + "s: " + context.getSocket());
                         running.set(false);
 
                         printWriter.println(
@@ -121,7 +125,8 @@ public class ClientWorker implements Runnable {
             } catch (IOException e) {
                 logger.log(Level.FINEST, "Error occured when communicating with client: " + e.getMessage(), e);
                 break;
-            } catch (InterruptedException ignored) {}
+            } catch (InterruptedException ignored) {
+            }
         }
 
         try {

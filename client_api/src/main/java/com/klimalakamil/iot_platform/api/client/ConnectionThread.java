@@ -4,9 +4,7 @@ import com.klimalakamil.iot_platform.core.message.MessageData;
 import com.klimalakamil.iot_platform.core.message.Parcel;
 import com.klimalakamil.iot_platform.core.message.serializer.JsonSerializer;
 
-import javax.net.ssl.SSLSocket;
 import java.io.*;
-import java.net.InterfaceAddress;
 import java.net.Socket;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -64,7 +62,7 @@ public class ConnectionThread implements Runnable {
         try {
             OutputStream outputStream = socket.getOutputStream();
 
-            byte[] id = new byte[] {0};
+            byte[] id = new byte[]{0};
             outputStream.write(id, 0, 1);
             outputStream.flush();
 
@@ -77,7 +75,7 @@ public class ConnectionThread implements Runnable {
 
         while (running.get()) {
             try {
-                if(bufferedReader.ready()) {
+                if (bufferedReader.ready()) {
                     consumer.accept(serializer.deserialize(bufferedReader.readLine()));
                 }
 

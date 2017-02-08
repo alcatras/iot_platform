@@ -2,14 +2,11 @@ package com.klimalakamil.iot_platform.server.channel;
 
 import com.klimalakamil.iot_platform.server.ClientContext;
 import com.klimalakamil.iot_platform.server.control.ClientWorker;
-import com.klimalakamil.iot_platform.server.control.ExpectedMessage;
 import com.klimalakamil.iot_platform.server.generic.Parser;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Socket;
-import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,8 +35,8 @@ public class Channel implements Parser<ClientContext>, Runnable {
     public void activateConnection(ClientContext clientContext) {
         synchronized (prototypes) {
             logger.log(Level.INFO, "New client is joining channel: " + name + ": " + clientContext.getSocket());
-            for(ConnectionPrototype prototype: prototypes) {
-                if(prototype.getConnectionId() == clientContext.getId()) {
+            for (ConnectionPrototype prototype : prototypes) {
+                if (prototype.getConnectionId() == clientContext.getId()) {
                     prototype.setClientContext(clientContext);
                 }
             }
@@ -51,12 +48,12 @@ public class Channel implements Parser<ClientContext>, Runnable {
         logger.log(Level.INFO, "Starting channel thread for channel: " + name);
 
         boolean allActive = false;
-        while(!allActive) {
+        while (!allActive) {
             allActive = true;
 
             synchronized (prototypes) {
-                for(ConnectionPrototype prototype: prototypes) {
-                    if(prototype.getClientContext() == null) {
+                for (ConnectionPrototype prototype : prototypes) {
+                    if (prototype.getClientContext() == null) {
                         allActive = false;
                         break;
                     }
@@ -65,7 +62,8 @@ public class Channel implements Parser<ClientContext>, Runnable {
 
             try {
                 Thread.sleep(20);
-            } catch (InterruptedException ignored) {}
+            } catch (InterruptedException ignored) {
+            }
         }
 
         logger.log(Level.INFO, "Channel " + name + ": All parties connected");
@@ -75,22 +73,22 @@ public class Channel implements Parser<ClientContext>, Runnable {
         final int BUFFER_SIZE = 2048;
         byte buffer[] = new byte[BUFFER_SIZE];
 
-        while(running) {
+        while (running) {
             synchronized (prototypes) {
-                for(int i = 0; i < prototypes.size(); ++i) {
+                for (int i = 0; i < prototypes.size(); ++i) {
                     ConnectionPrototype prototype = prototypes.get(i);
                     InputStream inputStream = prototypes.get(i).getClientContext().getInputStream();
 
-                    if(prototype.isWrite()) {
+                    if (prototype.isWrite()) {
                         try {
                             int available = inputStream.available();
-                            while(available > 0) {
+                            while (available > 0) {
                                 int read = Math.min(available, BUFFER_SIZE);
                                 available -= inputStream.read(buffer, 0, read);
 
-                                for(int j = 0; j < prototypes.size(); ++j) {
+                                for (int j = 0; j < prototypes.size(); ++j) {
                                     ConnectionPrototype otherPrototype = prototypes.get(j);
-                                    if(i != j) {// && otherPrototype.isRead()) {
+                                    if (i != j) {// && otherPrototype.isRead()) {
                                         OutputStream outputStream = otherPrototype.getClientContext().getOutputStream();
                                         outputStream.write(buffer, 0, read);
                                         outputStream.flush();
@@ -107,7 +105,8 @@ public class Channel implements Parser<ClientContext>, Runnable {
 
             try {
                 Thread.sleep(1);
-            } catch (InterruptedException ignored) {}
+            } catch (InterruptedException ignored) {
+            }
         }
 
         logger.log(Level.INFO, "Channel " + name + " shutdown");

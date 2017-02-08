@@ -1,12 +1,9 @@
 package com.klimalakamil.iot_platform.core.message.messagedata.channel;
 
-import com.klimalakamil.iot_platform.core.message.messagedata.channel.util.DeviceProperties;
-
 /**
  * Created by kamil on 22.01.17.
  */
 public class ChannelParticipationRequest extends ChannelMessage {
-
     private String requester;
     private boolean canWrite;
     private boolean canRead;

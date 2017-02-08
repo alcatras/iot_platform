@@ -1,20 +1,14 @@
 package com.klimalakamil.iot_platform.api.client;
 
-import com.klimalakamil.iot_platform.core.message.MessageData;
-import com.klimalakamil.iot_platform.core.message.Parcel;
-import com.klimalakamil.iot_platform.core.message.serializer.JsonSerializer;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -86,7 +80,8 @@ public class ChannelThread implements Runnable {
                         bufferPosition = 0;
                         byteOutputStream.write(inputBuffer, 0, CHUNK_SIZE - 1);
                         if (inputBuffer[CHUNK_SIZE - 1] == '\n') {
-                            System.out.println("Got new message on channel " + name + ": " + byteOutputStream.toString().trim());
+                            System.out.println(
+                                    "Got new message on channel " + name + ": " + byteOutputStream.toString().trim());
                             byteOutputStream.reset();
                         }
                     }
@@ -96,7 +91,8 @@ public class ChannelThread implements Runnable {
 
                     // TODO: something better
                     if (inputBuffer[bufferPosition - 1] == '\n') {
-                        System.out.println("Got new message on channel " + name + ": " + byteOutputStream.toString().trim());
+                        System.out.println(
+                                "Got new message on channel " + name + ": " + byteOutputStream.toString().trim());
                         byteOutputStream.reset();
                         bufferPosition = 0;
                     }

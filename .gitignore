@@ -7,3 +7,4 @@ core/build/
 server/build/
 client_sim/build/
 client_api/build/
+system_test/build/

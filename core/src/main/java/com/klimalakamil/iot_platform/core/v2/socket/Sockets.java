@@ -1,17 +1,13 @@
 package com.klimalakamil.iot_platform.core.v2.socket;
 
-import com.sun.net.ssl.internal.ssl.Provider;
-
-import javax.net.ssl.*;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.security.KeyStore;
-import java.security.SecureRandom;
-import java.security.Security;
-import java.util.Arrays;
 
 /**
  * Created by kamil on 26.01.17.
@@ -37,7 +33,8 @@ public abstract class Sockets {
             throws Exception {
 
         SSLServerSocketFactory sslServerSocketFactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-        SSLServerSocket sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(port, backlog, address);
+        SSLServerSocket sslServerSocket = (SSLServerSocket) sslServerSocketFactory.createServerSocket(port, backlog,
+                address);
         return sslServerSocket;
 
 //        SecureRandom secureRandom = new SecureRandom();

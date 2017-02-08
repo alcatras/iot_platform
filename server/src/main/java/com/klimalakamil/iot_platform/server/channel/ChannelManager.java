@@ -1,11 +1,7 @@
 package com.klimalakamil.iot_platform.server.channel;
 
 import com.klimalakamil.iot_platform.core.message.messagedata.channel.ChannelConnectionId;
-import com.klimalakamil.iot_platform.core.message.messagedata.channel.NewChannelRequest;
 import com.klimalakamil.iot_platform.server.ClientContext;
-import com.klimalakamil.iot_platform.server.control.AddressedParcel;
-import com.klimalakamil.iot_platform.server.control.ClientWorker;
-import com.klimalakamil.iot_platform.server.control.service.ServiceRegistry;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,20 +15,11 @@ import java.util.concurrent.Executors;
  */
 public class ChannelManager {
 
-    private static byte _id = 1;
-
-    public static byte getUniqueId() {
-        synchronized (lock) {
-            return _id == Byte.MAX_VALUE ? 1 : ++_id;
-        }
-    }
-
-    private static ChannelManager instance;
     private static final Object lock = new Object();
-
+    private static byte _id = 1;
+    private static ChannelManager instance;
     private Map<Byte, Channel> connections;
     private List<Channel> channels;
-
     private Executor executor;
 
     private ChannelManager() {
@@ -40,6 +27,12 @@ public class ChannelManager {
         connections = new HashMap<>();
         channels = new ArrayList<>();
         executor = Executors.newFixedThreadPool(10);
+    }
+
+    public static byte getUniqueId() {
+        synchronized (lock) {
+            return _id == Byte.MAX_VALUE ? 1 : ++_id;
+        }
     }
 
     public static ChannelManager getInstance() {
@@ -59,7 +52,8 @@ public class ChannelManager {
 
             for (ChannelDeviceInfo channelDeviceInfo : devices) {
                 byte id = getUniqueId();
-                channel.addDevice(id, channelDeviceInfo.getWorker(), channelDeviceInfo.isCanRead(), channelDeviceInfo.isCanWrite());
+                channel.addDevice(id, channelDeviceInfo.getWorker(), channelDeviceInfo.isCanRead(),
+                        channelDeviceInfo.isCanWrite());
                 channelDeviceInfo.getWorker().send(new ChannelConnectionId(name, id));
                 connections.put(id, channel);
             }

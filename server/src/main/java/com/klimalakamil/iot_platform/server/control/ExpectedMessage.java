@@ -18,6 +18,7 @@ public class ExpectedMessage implements Parser<AddressedParcel>, Runnable {
     private final Map<ExMessageId, ExMessageData> expectedList;
     private Logger logger = Logger.getLogger(ExpectedMessage.class.getCanonicalName());
     private boolean running = true;
+
     private ExpectedMessage() {
         expectedList = Collections.synchronizedMap(new HashMap<>());
     }

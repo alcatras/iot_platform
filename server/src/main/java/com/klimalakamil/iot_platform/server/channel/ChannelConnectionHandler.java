@@ -1,11 +1,7 @@
 package com.klimalakamil.iot_platform.server.channel;
 
-import com.klimalakamil.iot_platform.core.message.messagedata.channel.ChannelParticipationRequest;
 import com.klimalakamil.iot_platform.server.ClientContext;
-import com.klimalakamil.iot_platform.server.control.ClientWorker;
 import com.klimalakamil.iot_platform.server.generic.Parser;
-
-import java.util.*;
 
 /**
  * Created by kamil on 26.01.17.

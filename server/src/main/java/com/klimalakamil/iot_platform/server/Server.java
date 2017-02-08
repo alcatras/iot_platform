@@ -7,15 +7,11 @@ import com.klimalakamil.iot_platform.server.database.DatabaseHelper;
 import com.klimalakamil.iot_platform.server.database.mappers.DeviceMapper;
 import com.klimalakamil.iot_platform.server.database.mappers.SessionMapper;
 import com.klimalakamil.iot_platform.server.database.mappers.UserMapper;
-import com.sun.net.ssl.internal.ssl.Provider;
 
-import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.security.Security;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,24 +21,14 @@ import java.util.logging.Logger;
  */
 public class Server {
 
-    static {
-        Security.addProvider(new Provider());
-
-        System.setProperty("javax.net.ssl.keyStore", "server.ks");
-        System.setProperty("javax.net.ssl.keyStorePassword", "password");
-
-        //System.setProperty("javax.net.debug","all");
-    }
-
     private Logger logger = Logger.getLogger(Server.class.getName());
     private ServerSocket socket;
 
     private boolean running = true;
 
-    private Server() throws SQLException {
+    public Server(InetAddress address, int port, int backlog) throws SQLException {
         try {
-            socket = Sockets.newServerSocket(InetAddress.getByName("localhost"), 25535, 10);//newSSLServerSocket(InetAddress.getByName("localhost"), 25535, 10);
-            //socket.setWantClientAuth(false);
+            socket = Sockets.newServerSocket(address, port, backlog);
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Unable to create socket: " + e.getMessage(), e);
         }
@@ -82,8 +68,8 @@ public class Server {
         }
     }
 
-    public static void main(String[] args) throws SQLException {
-        new Server();
+    public static void main(String[] args) throws Exception {
+        new Server(InetAddress.getByName("localhost"), 25535, 10);
     }
 
     public void stop() {
